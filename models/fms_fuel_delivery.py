@@ -285,6 +285,9 @@ class FMSFuelDeliveryLine(models.Model):
 class FMSDipLogAccounting(models.Model):
     _inherit = 'fms.dip_log'
 
+    # Relax required=True so offloading dip logs can exist without a shift
+    shift_id = fields.Many2one('fms.shift', 'Shift', required=False, ondelete='cascade')
+
     dip_type = fields.Selection([
         ('shift_close', 'Shift Close'),
         ('offloading',  'Delivery Offloading'),
