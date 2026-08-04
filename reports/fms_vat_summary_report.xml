@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_fms_vat_summary" model="ir.actions.report">
+        <field name="name">VAT Summary</field>
+        <field name="model">fms.shift</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fms_accounting.report_fms_vat_summary</field>
+        <field name="report_file">fms_accounting.report_fms_vat_summary</field>
+        <field name="binding_model_id" ref="fms.model_fms_shift"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('fms.group_fms_accountant'))]"/>
+    </record>
+
+    <template id="report_fms_vat_summary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="shift">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>VAT / Tax Summary</h2>
+                        <h4>Shift: <t t-esc="shift.display_name"/></h4>
+
+                        <t t-if="not shift.sales_journal_entry_id">
+                            <p class="text-muted">No GL entry posted for this shift.</p>
+                        </t>
+                        <t t-else="">
+                            <t t-set="tax_lines" t-value="shift.sales_journal_entry_id.line_ids.filtered(lambda l: l.tax_line_id)"/>
+                            <t t-if="not tax_lines">
+                                <p class="text-muted">No tax lines in this shift's journal entry.</p>
+                            </t>
+                            <t t-else="">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Tax</th>
+                                            <th class="text-end">Tax Amount (KES)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="tax_lines" t-as="tl">
+                                            <tr>
+                                                <td><t t-esc="tl.tax_line_id.name"/></td>
+                                                <td class="text-end">
+                                                    <t t-esc="'{:,.2f}'.format(tl.credit)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td><strong>Total Tax</strong></td>
+                                            <td class="text-end">
+                                                <strong>
+                                                    <t t-esc="'{:,.2f}'.format(sum(tax_lines.mapped('credit')))"/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

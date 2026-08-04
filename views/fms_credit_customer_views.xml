@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fms_credit_customer_form" model="ir.ui.view">
+        <field name="name">fms.credit.customer.form</field>
+        <field name="model">fms.credit.customer</field>
+        <field name="arch" type="xml">
+            <form string="Credit Customer">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoices"
+                                type="object" class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Invoices</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="partner_id"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Account Details">
+                            <field name="fleet_card_ref" placeholder="e.g. FLEET-0042"/>
+                            <field name="credit_limit" string="Credit Limit (KES)"/>
+                            <field name="pdc_allowed"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Current Position">
+                            <field name="outstanding_balance" readonly="1"
+                                   string="Outstanding (KES)"
+                                   decoration-danger="outstanding_balance &gt; credit_limit and credit_limit &gt; 0"
+                                   decoration-success="outstanding_balance == 0"/>
+                            <field name="credit_available" readonly="1"
+                                   string="Available Credit (KES)"
+                                   invisible="credit_limit == 0"/>
+                        </group>
+                    </group>
+
+                    <field name="notes" placeholder="Internal notes…"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fms_credit_customer_list" model="ir.ui.view">
+        <field name="name">fms.credit.customer.list</field>
+        <field name="model">fms.credit.customer</field>
+        <field name="arch" type="xml">
+            <list string="Credit Customers"
+                  decoration-danger="outstanding_balance &gt; credit_limit and credit_limit &gt; 0">
+                <field name="partner_id"/>
+                <field name="fleet_card_ref"/>
+                <field name="credit_limit" string="Limit (KES)"/>
+                <field name="outstanding_balance" string="Outstanding (KES)" sum="Total Outstanding"/>
+                <field name="credit_available" string="Available (KES)"
+                       invisible="credit_limit == 0"/>
+                <field name="pdc_allowed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fms_credit_customer" model="ir.actions.act_window">
+        <field name="name">Credit Customers</field>
+        <field name="res_model">fms.credit.customer</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_fms_credit_customers"
+              name="Credit Customers"
+              parent="fms.menu_fms_root"
+              action="action_fms_credit_customer"
+              groups="fms.group_fms_supervisor"
+              sequence="25"/>
+
+</odoo>

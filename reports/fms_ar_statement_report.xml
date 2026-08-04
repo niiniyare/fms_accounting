@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_fms_ar_statement" model="ir.actions.report">
+        <field name="name">Customer Statement</field>
+        <field name="model">fms.credit.customer</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fms_accounting.report_fms_ar_statement</field>
+        <field name="report_file">fms_accounting.report_fms_ar_statement</field>
+        <field name="binding_model_id" ref="model_fms_credit_customer"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('fms.group_fms_accountant'))]"/>
+    </record>
+
+    <template id="report_fms_ar_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="customer">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Customer Account Statement</h2>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Account:</strong>
+                                <t t-esc="customer.partner_id.name"/><br/>
+                                <t t-if="customer.fleet_card_ref">
+                                    <strong>Fleet Card:</strong>
+                                    <t t-esc="customer.fleet_card_ref"/>
+                                </t>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Credit Limit:</strong>
+                                KES <t t-esc="'{:,.2f}'.format(customer.credit_limit)"/><br/>
+                                <strong>Outstanding:</strong>
+                                KES <t t-esc="'{:,.2f}'.format(customer.outstanding_balance)"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Reference</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Debit (KES)</th>
+                                    <th class="text-end">Credit (KES)</th>
+                                    <th class="text-end">Balance (KES)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="lines" t-value="env['account.move.line'].search([
+                                    ('partner_id', '=', customer.partner_id.id),
+                                    ('account_id.account_type', '=', 'asset_receivable'),
+                                    ('parent_state', '=', 'posted'),
+                                ], order='date asc')"/>
+                                <t t-set="running" t-value="0"/>
+                                <t t-foreach="lines" t-as="line">
+                                    <t t-set="running" t-value="running + line.debit - line.credit"/>
+                                    <tr>
+                                        <td><t t-esc="line.date"/></td>
+                                        <td><t t-esc="line.move_id.name"/></td>
+                                        <td><t t-esc="line.name"/></td>
+                                        <td class="text-end">
+                                            <t t-if="line.debit">
+                                                <t t-esc="'{:,.2f}'.format(line.debit)"/>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-if="line.credit">
+                                                <t t-esc="'{:,.2f}'.format(line.credit)"/>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'{:,.2f}'.format(running)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5"><strong>Closing Balance</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                            KES <t t-esc="'{:,.2f}'.format(customer.outstanding_balance)"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

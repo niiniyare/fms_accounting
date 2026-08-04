@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_fms_delivery_register" model="ir.actions.report">
+        <field name="name">Delivery Register</field>
+        <field name="model">fms.fuel.delivery</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fms_accounting.report_fms_delivery_register</field>
+        <field name="report_file">fms_accounting.report_fms_delivery_register</field>
+        <field name="binding_model_id" ref="model_fms_fuel_delivery"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('fms.group_fms_supervisor'))]"/>
+    </record>
+
+    <template id="report_fms_delivery_register">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="delivery">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Fuel Delivery Register</h2>
+                        <h4><t t-esc="delivery.name"/> — <t t-esc="delivery.delivery_date"/></h4>
+
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Tanker / DN</th>
+                                    <th>Product</th>
+                                    <th>Tank</th>
+                                    <th>Invoiced (L)</th>
+                                    <th>Dip Before (L)</th>
+                                    <th>Sales During (L)</th>
+                                    <th>Expected (L)</th>
+                                    <th>Dip After (L)</th>
+                                    <th>Variance (L)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="delivery.delivery_line_ids" t-as="line">
+                                    <tr t-att-class="'table-danger' if line.variance &lt; 0 else ''">
+                                        <td><t t-esc="delivery.vendor_id.name"/></td>
+                                        <td><t t-esc="delivery.tanker_ref"/></td>
+                                        <td><t t-esc="line.product_id.name"/></td>
+                                        <td><t t-esc="line.location_id.name"/></td>
+                                        <td><t t-esc="'%.2f' % line.quantity_litres"/></td>
+                                        <td><t t-esc="'%.2f' % line.dip_before"/></td>
+                                        <td><t t-esc="'%.2f' % line.sales_during"/></td>
+                                        <td><t t-esc="'%.2f' % line.expected_qty"/></td>
+                                        <td><t t-esc="'%.2f' % line.dip_after"/></td>
+                                        <td><strong><t t-esc="'%.2f' % line.variance"/></strong></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4"><strong>Total</strong></td>
+                                    <td><strong><t t-esc="'%.2f' % delivery.total_litres"/></strong></td>
+                                    <td colspan="5"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <t t-if="delivery.notes">
+                            <p><strong>Notes:</strong> <t t-esc="delivery.notes"/></p>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fms_fuel_delivery_form" model="ir.ui.view">
+        <field name="name">fms.fuel.delivery.form</field>
+        <field name="model">fms.fuel.delivery</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Delivery">
+                <header>
+                    <button name="action_confirm" string="Confirm Delivery"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"
+                            confirm="This will create a stock receipt and vendor bill. Continue?"/>
+                    <button name="action_reset_draft" string="Reset to Draft"
+                            type="object"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_view_picking" string="View Stock Receipt"
+                            type="object" class="btn-secondary"
+                            invisible="not stock_picking_id"/>
+                    <button name="action_view_bill" string="View Vendor Bill"
+                            type="object" class="btn-secondary"
+                            invisible="not vendor_bill_id"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,billed"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Delivery Details">
+                            <field name="delivery_date"/>
+                            <field name="vendor_id"/>
+                            <field name="tanker_ref" placeholder="e.g. KBZ 123A / DN-2026-0041"/>
+                            <field name="shift_id"
+                                   domain="[('state', 'in', ('open', 'closing'))]"
+                                   placeholder="Link to current shift (optional)"/>
+                        </group>
+                        <group string="Totals">
+                            <field name="total_litres" readonly="1"/>
+                            <field name="total_amount" readonly="1" string="Total (KES)"/>
+                            <field name="stock_picking_id" readonly="1"
+                                   invisible="not stock_picking_id"/>
+                            <field name="vendor_bill_id" readonly="1"
+                                   invisible="not vendor_bill_id"/>
+                        </group>
+                    </group>
+
+                    <field name="delivery_line_ids"
+                           readonly="state == 'confirmed'"
+                           context="{'default_delivery_id': id}">
+                        <list editable="bottom" string="Delivery Lines">
+                            <field name="sequence" widget="handle"/>
+                            <field name="product_id"
+                                   domain="[('fms_is_fuel','=',True)]"/>
+                            <field name="location_id"
+                                   domain="[('fms_is_fuel_tank','=',True)]"
+                                   string="Destination Tank"/>
+                            <field name="quantity_litres" string="Invoiced (L)"/>
+                            <field name="unit_price" string="Price (KES/L)"/>
+                            <field name="subtotal" readonly="1" string="Subtotal (KES)"
+                                   sum="Total KES"/>
+
+                            <!-- Dip verification columns -->
+                            <field name="dip_before" string="Dip Before (L)" optional="show"/>
+                            <field name="sales_during" string="Sales During (L)" optional="show"/>
+                            <field name="expected_qty" string="Expected After (L)"
+                                   readonly="1" optional="show"/>
+                            <field name="dip_after" string="Dip After (L)" optional="show"/>
+                            <field name="variance" string="Variance (L)"
+                                   readonly="1" optional="show"
+                                   decoration-success="variance &gt;= 0"
+                                   decoration-danger="variance &lt; 0"/>
+                        </list>
+                    </field>
+
+                    <group>
+                        <field name="notes" placeholder="Supervisor notes, discrepancy explanations…"/>
+                    </group>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fms_fuel_delivery_list" model="ir.ui.view">
+        <field name="name">fms.fuel.delivery.list</field>
+        <field name="model">fms.fuel.delivery</field>
+        <field name="arch" type="xml">
+            <list string="Fuel Deliveries" decoration-muted="state == 'draft'"
+                  decoration-success="state == 'billed'">
+                <field name="name"/>
+                <field name="delivery_date"/>
+                <field name="vendor_id"/>
+                <field name="tanker_ref"/>
+                <field name="total_litres" string="Total (L)" sum="Grand Total L"/>
+                <field name="total_amount" string="Total (KES)" sum="Grand Total KES"/>
+                <field name="state" widget="badge"
+                       decoration-secondary="state == 'draft'"
+                       decoration-success="state == 'confirmed'"
+                       decoration-info="state == 'billed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fms_fuel_delivery" model="ir.actions.act_window">
+        <field name="name">Fuel Deliveries</field>
+        <field name="res_model">fms.fuel.delivery</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_fms_fuel_delivery"
+              name="Fuel Deliveries"
+              parent="fms.menu_fms_root"
+              action="action_fms_fuel_delivery"
+              groups="fms.group_fms_supervisor"
+              sequence="20"/>
+
+</odoo>

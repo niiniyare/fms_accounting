@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend account.payment form with PDC fields -->
+    <record id="view_account_payment_fms_pdc_inherit" model="ir.ui.view">
+        <field name="name">account.payment.fms.pdc</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='memo']" position="after">
+                <group string="Post-Dated Cheque" invisible="not fms_is_pdc" col="2">
+                    <field name="fms_is_pdc" invisible="1"/>
+                    <field name="fms_cheque_number" string="Cheque No."/>
+                    <field name="fms_cheque_date" string="Cheque Date"/>
+                    <field name="fms_pdc_state" string="PDC Status"/>
+                    <field name="fms_credit_customer_id" string="Credit Account"/>
+                </group>
+                <field name="fms_is_pdc" string="Post-Dated Cheque" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- PDC register — list of all PDC payments -->
+    <record id="view_fms_pdc_list" model="ir.ui.view">
+        <field name="name">fms.pdc.list</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <list string="Post-Dated Cheques"
+                  decoration-warning="fms_pdc_state == 'held'"
+                  decoration-success="fms_pdc_state == 'cleared'"
+                  decoration-danger="fms_pdc_state == 'bounced'">
+                <field name="date" string="Received"/>
+                <field name="fms_cheque_date" string="Cheque Date"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="fms_credit_customer_id" string="Credit Account"/>
+                <field name="fms_cheque_number" string="Cheque No."/>
+                <field name="amount" string="Amount (KES)" sum="Total"/>
+                <field name="fms_pdc_state" string="Status" widget="badge"
+                       decoration-warning="fms_pdc_state == 'held'"
+                       decoration-success="fms_pdc_state == 'cleared'"
+                       decoration-danger="fms_pdc_state == 'bounced'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fms_pdc_register" model="ir.actions.act_window">
+        <field name="name">PDC Register</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_fms_pdc_list"/>
+        <field name="domain">[('fms_is_pdc', '=', True)]</field>
+        <field name="context">{'default_fms_is_pdc': True}</field>
+    </record>
+
+    <menuitem id="menu_fms_pdc"
+              name="PDC Register"
+              parent="fms.menu_fms_root"
+              action="action_fms_pdc_register"
+              groups="fms.group_fms_supervisor"
+              sequence="27"/>
+
+</odoo>
