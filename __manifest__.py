@@ -26,4 +26,7 @@
     "installable": True,
     "application": False,
     "auto_install": False,
+    "test": [
+        "tests/test_fms_accounting.py",
+    ],
 }
