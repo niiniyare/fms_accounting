@@ -42,6 +42,8 @@ class FMSShiftAccountingExt(models.Model):
         import logging as _log
         _log = _log.getLogger(__name__)
 
+        # Flush ORM cache so taxes_id reflects any mid-transaction changes
+        self.env['product.product'].flush_model(['taxes_id'])
         # Check if any product has taxes — if not, use base method unchanged
         has_taxes = any(
             e.product_id.taxes_id

@@ -126,7 +126,7 @@ class FMSPettyCashDisbursement(models.Model):
             # DR Cash | CR Bank (receivable from management)
             bank_account = self.env['account.account'].search([
                 ('account_type', '=', 'asset_receivable'),
-                ('company_id', '=', self.float_id.company_id.id),
+                ('company_ids', 'in', self.float_id.company_id.id),
             ], limit=1)
             if not bank_account:
                 raise ValidationError("No receivable account found for top-up entry.")
