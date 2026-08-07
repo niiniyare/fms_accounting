@@ -99,7 +99,7 @@
                 <field name="total_litres" string="Total (L)" sum="Grand Total L"/>
                 <field name="total_amount" string="Total (KES)" sum="Grand Total KES"/>
                 <field name="state" widget="badge"
-                       decoration-secondary="state == 'draft'"
+                       decoration-muted="state == 'draft'"
                        decoration-success="state == 'confirmed'"
                        decoration-info="state == 'billed'"/>
             </list>

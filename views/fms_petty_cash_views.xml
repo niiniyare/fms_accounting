@@ -46,7 +46,7 @@
                             <field name="account_id" optional="show"
                                    invisible="is_topup"/>
                             <field name="state" widget="badge"
-                                   decoration-secondary="state == 'draft'"
+                                   decoration-muted="state == 'draft'"
                                    decoration-success="state == 'posted'"/>
                         </list>
                     </field>
@@ -79,7 +79,7 @@
                 <field name="amount" string="Amount (KES)" sum="Total"/>
                 <field name="account_id" optional="show"/>
                 <field name="state" widget="badge"
-                       decoration-secondary="state == 'draft'"
+                       decoration-muted="state == 'draft'"
                        decoration-success="state == 'posted'"/>
                 <button name="action_post" string="Post" type="object"
                         invisible="state != 'draft'"/>

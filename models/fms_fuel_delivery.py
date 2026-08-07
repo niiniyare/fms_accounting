@@ -177,13 +177,6 @@ class FMSFuelDelivery(models.Model):
                 'closing_volume': line.dip_after,
                 'dip_type': 'offloading',
                 'delivery_line_id': line.id,
-                'notes': (
-                    f"Delivery {self.name} — "
-                    f"invoiced {line.quantity_litres:.2f}L, "
-                    f"sales during {line.sales_during:.2f}L, "
-                    f"expected {line.expected_qty:.2f}L, "
-                    f"variance {line.variance:.2f}L"
-                ),
             })
 
     # ------------------------------------------------------------------

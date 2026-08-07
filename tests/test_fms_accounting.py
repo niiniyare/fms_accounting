@@ -20,14 +20,14 @@ class FMSAccountingBase(TransactionCase):
         super().setUp()
         company = self.env.company
 
-        # Accounts
-        self.revenue_account = self._account('income', 'ACC-REV-9001', 'UAT Revenue')
-        self.cogs_account    = self._account('expense', 'ACC-COG-9002', 'UAT COGS')
-        self.expense_account = self._account('expense', 'ACC-EXP-9003', 'UAT Expense')
+        # Accounts (codes: alphanumeric + dots only, Odoo 18 constraint)
+        self.revenue_account = self._account('income', '9001', 'UAT Revenue')
+        self.cogs_account    = self._account('expense', '9002', 'UAT COGS')
+        self.expense_account = self._account('expense', '9003', 'UAT Expense')
         self.receivable      = self.env['account.account'].search([
             ('account_type', '=', 'asset_receivable'),
-            ('company_id', '=', company.id),
-        ], limit=1) or self._account('asset_receivable', 'ACC-REC-9004', 'UAT Receivable')
+            ('company_ids', 'in', company.id),
+        ], limit=1) or self._account('asset_receivable', '9004', 'UAT Receivable')
 
         # Cash journal (for petty cash)
         self.cash_journal = self.env['account.journal'].search([
@@ -89,15 +89,16 @@ class FMSAccountingBase(TransactionCase):
     # helpers ----------------------------------------------------------------
 
     def _account(self, account_type, code, name):
+        # Odoo 18: account.account uses company_ids (Many2many), not company_id
         existing = self.env['account.account'].search([
-            ('code', '=', code), ('company_id', '=', self.env.company.id),
+            ('code', '=', code), ('company_ids', 'in', self.env.company.id),
         ], limit=1)
         if existing:
             return existing
         return self.env['account.account'].create({
             'name': name, 'code': code,
             'account_type': account_type,
-            'company_id': self.env.company.id,
+            'company_ids': [(4, self.env.company.id)],
         })
 
     def _make_delivery(self, qty=1000.0, price=165.0):
