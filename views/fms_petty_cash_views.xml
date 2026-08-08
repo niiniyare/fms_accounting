@@ -103,7 +103,7 @@
 
     <menuitem id="menu_fms_petty_cash_transactions"
               name="Petty Cash Transactions"
-              parent="fms.menu_fms_root"
+              parent="fms_accounting.menu_fms_accounting"
               action="action_fms_petty_cash_disbursements"
               groups="fms.group_fms_supervisor"
               sequence="30"/>

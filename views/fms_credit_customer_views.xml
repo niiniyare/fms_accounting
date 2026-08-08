@@ -69,11 +69,18 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- Accounting submenu (Credit Customers, PDC, Petty Cash) -->
+    <menuitem id="menu_fms_accounting"
+              name="Accounting"
+              parent="fms.menu_fms_root"
+              groups="fms.group_fms_supervisor"
+              sequence="30"/>
+
     <menuitem id="menu_fms_credit_customers"
               name="Credit Customers"
-              parent="fms.menu_fms_root"
+              parent="menu_fms_accounting"
               action="action_fms_credit_customer"
               groups="fms.group_fms_supervisor"
-              sequence="25"/>
+              sequence="10"/>
 
 </odoo>

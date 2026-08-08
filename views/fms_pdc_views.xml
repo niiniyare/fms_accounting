@@ -54,9 +54,9 @@
 
     <menuitem id="menu_fms_pdc"
               name="PDC Register"
-              parent="fms.menu_fms_root"
+              parent="fms_accounting.menu_fms_accounting"
               action="action_fms_pdc_register"
               groups="fms.group_fms_supervisor"
-              sequence="27"/>
+              sequence="20"/>
 
 </odoo>

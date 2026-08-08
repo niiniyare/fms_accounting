@@ -114,7 +114,7 @@
 
     <menuitem id="menu_fms_fuel_delivery"
               name="Fuel Deliveries"
-              parent="fms.menu_fms_root"
+              parent="fms.menu_fms_operations"
               action="action_fms_fuel_delivery"
               groups="fms.group_fms_supervisor"
               sequence="20"/>
