@@ -32,4 +32,25 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
+    <!-- fms.report.debtor.aging (R12) -->
+    <record id="access_fms_report_debtor_aging_supervisor" model="ir.model.access">
+        <field name="name">fms.report.debtor.aging supervisor</field>
+        <field name="model_id" ref="model_fms_report_debtor_aging"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="access_fms_report_debtor_aging_accountant" model="ir.model.access">
+        <field name="name">fms.report.debtor.aging accountant</field>
+        <field name="model_id" ref="model_fms_report_debtor_aging"/>
+        <field name="group_id" ref="fms.group_fms_accountant"/>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
 </odoo>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         R12 · Debtors Aging & Credit Exposure
+    ================================================================ -->
+
+    <record id="view_fms_debtor_aging_list" model="ir.ui.view">
+        <field name="name">fms.report.debtor.aging.list</field>
+        <field name="model">fms.report.debtor.aging</field>
+        <field name="arch" type="xml">
+            <list string="Debtors Aging &amp; Credit Exposure"
+                  create="false" edit="false" delete="false"
+                  default_order="over_limit desc, days_overdue desc, balance desc"
+                  decoration-danger="over_limit == True or on_hold == True"
+                  decoration-warning="days_overdue &gt; 60 and not over_limit">
+                <field name="partner_id"     string="Customer"/>
+                <field name="balance"        string="Outstanding (KES)"  sum="Outstanding"/>
+                <field name="bucket_current" string="Not Due"            sum="Not Due"    optional="show"/>
+                <field name="bucket_1_30"    string="1–30 d"             sum="1–30"       optional="show"/>
+                <field name="bucket_31_60"   string="31–60 d"            sum="31–60"/>
+                <field name="bucket_61_90"   string="61–90 d"            sum="61–90"/>
+                <field name="bucket_90_plus" string="90+ d"              sum="90+"
+                       decoration-danger="bucket_90_plus &gt; 0"/>
+                <field name="days_overdue"   string="Days Overdue"
+                       decoration-danger="days_overdue &gt; 90"
+                       decoration-warning="days_overdue &gt; 60 and days_overdue &lt;= 90"/>
+                <field name="credit_limit"   string="Limit (KES)"        optional="show"/>
+                <field name="exposure_pct"   string="Exposure %"
+                       decoration-danger="exposure_pct &gt;= 100"
+                       decoration-warning="exposure_pct &gt;= 90 and exposure_pct &lt; 100"
+                       optional="show"/>
+                <field name="over_limit"     string="Over Limit"  widget="boolean" optional="show"/>
+                <field name="on_hold"        string="On Hold"     widget="boolean" optional="show"/>
+                <field name="last_payment_date" string="Last Payment"    optional="show"/>
+                <field name="invoice_count"  string="Invoices"           optional="show"/>
+                <button name="action_open_invoices"
+                        string="View Invoices"
+                        type="object"
+                        icon="fa-file-text-o"
+                        class="btn-sm"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fms_debtor_aging_pivot" model="ir.ui.view">
+        <field name="name">fms.report.debtor.aging.pivot</field>
+        <field name="model">fms.report.debtor.aging</field>
+        <field name="arch" type="xml">
+            <pivot string="Debtors Aging" disable_linking="false">
+                <field name="partner_id"     type="row"/>
+                <field name="balance"        type="measure" string="Outstanding (KES)"/>
+                <field name="bucket_1_30"    type="measure" string="1–30 d"/>
+                <field name="bucket_31_60"   type="measure" string="31–60 d"/>
+                <field name="bucket_61_90"   type="measure" string="61–90 d"/>
+                <field name="bucket_90_plus" type="measure" string="90+ d"/>
+                <field name="credit_limit"   type="measure" string="Limit (KES)"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_fms_debtor_aging_graph" model="ir.ui.view">
+        <field name="name">fms.report.debtor.aging.graph</field>
+        <field name="model">fms.report.debtor.aging</field>
+        <field name="arch" type="xml">
+            <graph string="Outstanding by Customer" type="bar" stacked="1">
+                <field name="partner_id"     type="row"/>
+                <field name="bucket_1_30"    type="measure" string="1–30 d"/>
+                <field name="bucket_31_60"   type="measure" string="31–60 d"/>
+                <field name="bucket_61_90"   type="measure" string="61–90 d"/>
+                <field name="bucket_90_plus" type="measure" string="90+ d"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_fms_debtor_aging_search" model="ir.ui.view">
+        <field name="name">fms.report.debtor.aging.search</field>
+        <field name="model">fms.report.debtor.aging</field>
+        <field name="arch" type="xml">
+            <search string="Debtors Aging">
+                <field name="partner_id" string="Customer"/>
+
+                <!-- Exception filters — default shows over-limit and 60+ days -->
+                <filter string="Over Limit"   name="over_limit"
+                        domain="[('over_limit','=',True)]"/>
+                <filter string="On Hold"      name="on_hold"
+                        domain="[('on_hold','=',True)]"/>
+                <filter string="60+ Days"     name="overdue_60"
+                        domain="[('days_overdue','&gt;',60)]"/>
+                <filter string="90+ Days"     name="overdue_90"
+                        domain="[('days_overdue','&gt;',90)]"/>
+                <separator/>
+                <filter string="Has Credit Limit" name="has_limit"
+                        domain="[('credit_limit','&gt;',0)]"/>
+                <filter string="Balance > 0"  name="has_balance"
+                        domain="[('balance','&gt;',0)]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter string="Customer"    name="group_partner"  context="{'group_by':'partner_id'}"/>
+                    <filter string="Over Limit"  name="group_limit"    context="{'group_by':'over_limit'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Action — opens on over-limit and 60+ days first
+    ================================================================ -->
+
+    <record id="action_fms_debtor_aging" model="ir.actions.act_window">
+        <field name="name">Debtors Aging &amp; Credit Exposure</field>
+        <field name="res_model">fms.report.debtor.aging</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{'search_default_over_limit': 1, 'search_default_overdue_60': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No outstanding receivables found.
+            </p>
+            <p>Outstanding posted invoices will appear here automatically.</p>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Menu — Cash &amp; Credit section under Reporting
+         (parent menu_fms_reporting defined in fms/views/fms_shift_list_views.xml)
+    ================================================================ -->
+
+    <menuitem id="menu_fms_report_debtors"
+              name="Debtors Aging &amp; Credit Exposure"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_debtor_aging"
+              groups="fms.group_fms_supervisor"
+              sequence="30"/>
+
+</odoo>
