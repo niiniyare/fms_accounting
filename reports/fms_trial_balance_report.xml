@@ -2,97 +2,101 @@
 <odoo>
 
     <template id="report_fms_trial_balance_document">
+        <t t-call="web.html_container">
         <t t-foreach="docs" t-as="doc">
         <t t-call="web.external_layout">
             <t t-set="data" t-value="doc.get_report_data()"/>
-            <div class="page">
+            <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000;">
 
-                <div class="row mb-4">
-                    <div class="col-12 text-center">
-                        <h2 style="font-weight:700; margin-bottom:2px;">Trial Balance</h2>
-                        <p style="color:#666; margin:0;">
-                            <t t-out="data['wizard'].date_from"/> —
-                            <t t-out="data['wizard'].date_to"/>
-                             | 
-                            <t t-out="data['wizard'].target_move == 'posted' and 'Posted Entries Only' or 'All Entries'"/>
-                            <t t-if="not data['balanced']">
-                                 | <span style="color:red; font-weight:600;">⚠ DOES NOT BALANCE</span>
-                            </t>
-                        </p>
+                <!-- Company + Title -->
+                <div style="text-align:center; margin-bottom:18px;">
+                    <div style="font-weight:700; font-size:11pt;">
+                        <t t-out="data['wizard'].company_id.name"/>
+                    </div>
+                    <div style="font-weight:700; font-size:11pt; margin-top:4px;">
+                        TRIAL BALANCE
+                    </div>
+                    <div style="font-size:9pt; margin-top:3px; color:#333;">
+                        <t t-out="data['wizard'].date_from"/> to <t t-out="data['wizard'].date_to"/>
+                        <t t-if="data['wizard'].target_move == 'posted'"> — Posted Entries Only</t>
+                        <t t-else=""> — All Entries</t>
+                        <t t-if="not data['balanced']">
+                            <span style="color:#c00; font-weight:700;"> — DOES NOT BALANCE</span>
+                        </t>
                     </div>
                 </div>
 
-                <table class="table table-sm table-bordered" style="font-size:10px;">
+                <table style="width:100%; border-collapse:collapse; font-size:10pt;">
+                    <col style="width:10%;"/>
+                    <col style="width:34%;"/>
+                    <col style="width:14%; text-align:right;"/>
+                    <col style="width:14%; text-align:right;"/>
+                    <col style="width:14%; text-align:right;"/>
+                    <col style="width:14%; text-align:right;"/>
                     <thead>
-                        <tr style="background:#1a1a2e; color:#fff; text-align:center;">
-                            <th style="width:9%;">Code</th>
-                            <th style="text-align:left;">Account Name</th>
-                            <th style="width:16%;">Opening Balance</th>
-                            <th style="width:14%;">Debit</th>
-                            <th style="width:14%;">Credit</th>
-                            <th style="width:16%;">Closing Balance</th>
+                        <tr style="border-top:2px solid #000; border-bottom:2px solid #000;">
+                            <th style="text-align:left; padding:4px 4px 4px 0;">Code</th>
+                            <th style="text-align:left; padding:4px;">Account Name</th>
+                            <th style="text-align:right; padding:4px;">Opening Balance</th>
+                            <th style="text-align:right; padding:4px;">Debit</th>
+                            <th style="text-align:right; padding:4px;">Credit</th>
+                            <th style="text-align:right; padding:4px;">Closing Balance</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="data['rows']" t-as="row">
-                            <tr t-att-style="'background:#f5f5f5;' if row_index % 2 == 0 else ''">
-                                <td style="color:#777; font-size:9px;"><t t-out="row['code']"/></td>
-                                <td><t t-out="row['name']"/></td>
-                                <td class="text-end"
-                                    t-att-style="'color:green;' if row['opening'] >= 0 else 'color:red;'">
-                                    <t t-out="'{:,.2f}'.format(row['opening'])"/>
-                                </td>
-                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['debit'])"/></td>
-                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['credit'])"/></td>
-                                <td class="text-end"
-                                    t-att-style="'color:green;' if row['closing'] >= 0 else 'color:red;'">
-                                    <t t-out="'{:,.2f}'.format(row['closing'])"/>
-                                </td>
+                            <tr t-att-style="'background:#f0f0f0;' if row_index % 2 == 0 else ''">
+                                <td style="padding:2px 4px 2px 0; color:#555; font-size:9pt;"><t t-out="row['code']"/></td>
+                                <td style="padding:2px 4px;"><t t-out="row['name']"/></td>
+                                <td style="text-align:right; padding:2px 4px;"><t t-out="'{:,.2f}'.format(row['opening'])"/></td>
+                                <td style="text-align:right; padding:2px 4px;"><t t-out="'{:,.2f}'.format(row['debit'])"/></td>
+                                <td style="text-align:right; padding:2px 4px;"><t t-out="'{:,.2f}'.format(row['credit'])"/></td>
+                                <td style="text-align:right; padding:2px 4px;"><t t-out="'{:,.2f}'.format(row['closing'])"/></td>
                             </tr>
                         </t>
                         <t t-if="not data['rows']">
                             <tr>
-                                <td colspan="6" class="text-center text-muted">
+                                <td colspan="6" style="text-align:center; padding:8px; color:#777;">
                                     No account movements found for this period.
                                 </td>
                             </tr>
                         </t>
-                    </tbody>
-                    <tfoot>
-                        <tr style="background:#1a1a2e; color:#fff; font-weight:700;">
-                            <td colspan="2" class="text-end">TOTALS</td>
-                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_opening'])"/></td>
-                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_debit'])"/></td>
-                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_credit'])"/></td>
-                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_closing'])"/></td>
+
+                        <!-- Totals row -->
+                        <tr style="border-top:2px solid #000; border-bottom:2px solid #000; font-weight:700;">
+                            <td colspan="2" style="padding:4px 4px 4px 0;">TOTALS</td>
+                            <td style="text-align:right; padding:4px;"><t t-out="'{:,.2f}'.format(data['total_opening'])"/></td>
+                            <td style="text-align:right; padding:4px;"><t t-out="'{:,.2f}'.format(data['total_debit'])"/></td>
+                            <td style="text-align:right; padding:4px;"><t t-out="'{:,.2f}'.format(data['total_credit'])"/></td>
+                            <td style="text-align:right; padding:4px;"><t t-out="'{:,.2f}'.format(data['total_closing'])"/></td>
                         </tr>
+
+                        <!-- Balance status -->
                         <t t-if="data['balanced']">
                             <tr>
-                                <td colspan="6" class="text-center"
-                                    style="color:green; font-size:9px; padding:4px;">
-                                    ✓ Debit and Credit totals are balanced.
+                                <td colspan="6" style="text-align:center; padding:6px; font-size:9pt; color:#333;">
+                                    Debit and Credit totals are balanced.
                                 </td>
                             </tr>
                         </t>
                         <t t-if="not data['balanced']">
                             <tr>
-                                <td colspan="6" class="text-center"
-                                    style="color:red; font-size:9px; padding:4px; font-weight:600;">
-                                    ⚠ Difference: <t t-out="'{:,.2f}'.format(abs(data['total_debit'] - data['total_credit']))"/>
-                                    — investigate unbalanced journal entries.
+                                <td colspan="6" style="text-align:center; padding:6px; font-size:9pt; color:#c00; font-weight:700;">
+                                    Difference: <t t-out="'{:,.2f}'.format(abs(data['total_debit'] - data['total_credit']))"/> — investigate unbalanced journal entries.
                                 </td>
                             </tr>
                         </t>
-                    </tfoot>
+                    </tbody>
                 </table>
 
-                <p style="font-size:9px; color:#999; margin-top:10px;">
+                <p style="font-size:8pt; color:#555; margin-top:20px; border-top:1px solid #ccc; padding-top:6px;">
                     All amounts in <t t-out="data['currency'].name"/>.
-                    Generated by FMS Accounting — <t t-out="data['wizard'].company_id.name"/>.
+                    Generated by FMS Accounting.
                 </p>
             </div>
         </t>
-    </t>
+        </t>
+        </t>
     </template>
 
     <record id="action_report_fms_trial_balance" model="ir.actions.report">
