@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Extend account.move form to show vehicle + driver on customer invoices -->
+    <!-- ================================================================
+         Extend account.move form — vehicle, driver, credit limit bypass
+    ================================================================ -->
+
     <record id="view_account_move_fms_fields" model="ir.ui.view">
         <field name="name">account.move.form.fms</field>
         <field name="model">account.move</field>
@@ -13,10 +16,52 @@
                 <field name="fms_driver" string="Driver"
                        invisible="move_type not in ('out_invoice','out_refund')"/>
             </xpath>
+            <!-- Credit limit override section — visible only when over limit -->
+            <xpath expr="//field[@name='narration']" position="before">
+                <group string="Credit Limit Override"
+                       invisible="move_type != 'out_invoice' or not fms_limit_bypass">
+                    <field name="fms_limit_bypass" string="Override Active"/>
+                    <field name="fms_limit_bypass_reason" string="Reason" required="fms_limit_bypass"/>
+                    <field name="fms_limit_bypass_uid"    string="Authorised By" readonly="1"/>
+                </group>
+                <!-- Show override checkbox when needed even before it's ticked -->
+                <group string="Credit Limit Override"
+                       invisible="move_type != 'out_invoice' or fms_limit_bypass">
+                    <field name="fms_limit_bypass" string="Override (supervisor only)"/>
+                </group>
+            </xpath>
         </field>
     </record>
 
-    <!-- Action: customer invoices (credit sales) with FMS fields -->
+    <!-- ================================================================
+         Extend res.partner form — credit limit and exposure
+    ================================================================ -->
+
+    <record id="view_res_partner_fms_credit" model="ir.ui.view">
+        <field name="name">res.partner.form.fms.credit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="FMS Credit" name="fms_credit"
+                      groups="fms.group_fms_supervisor">
+                    <group string="Credit Control">
+                        <field name="fms_credit_limit"    string="Credit Limit (KES)"/>
+                        <field name="fms_on_hold"         string="Account on Hold"/>
+                        <field name="fms_credit_exposure" string="Current Exposure (KES)"
+                               readonly="1"/>
+                        <field name="fms_exposure_pct"    string="Exposure %"
+                               readonly="1" widget="float" digits="[16,1]"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Action: customer invoices (credit sales)
+    ================================================================ -->
+
     <record id="action_fms_credit_customer" model="ir.actions.act_window">
         <field name="name">Credit Customers</field>
         <field name="res_model">account.move</field>
@@ -25,7 +70,10 @@
         <field name="context">{'default_move_type': 'out_invoice'}</field>
     </record>
 
-    <!-- Accounting submenu (Credit Customers, PDC, Petty Cash) -->
+    <!-- ================================================================
+         Accounting submenu
+    ================================================================ -->
+
     <menuitem id="menu_fms_accounting"
               name="Accounting"
               parent="fms.menu_fms_root"
