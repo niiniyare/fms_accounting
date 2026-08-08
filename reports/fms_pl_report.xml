@@ -2,6 +2,7 @@
 <odoo>
 
     <template id="report_fms_pl_document">
+        <t t-foreach="docs" t-as="doc">
         <t t-call="web.external_layout">
             <t t-set="data" t-value="doc.get_report_data()"/>
             <div class="page">
@@ -129,6 +130,7 @@
                 </p>
             </div>
         </t>
+    </t>
     </template>
 
     <record id="action_report_fms_pl" model="ir.actions.report">
