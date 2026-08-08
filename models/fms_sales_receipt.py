@@ -101,19 +101,28 @@ class FMSSalesReceiptMove(models.Model):
             move.fms_shift_id = self.env['fms.shift']._get_current_shift(date, move.company_id.id)
 
     # ------------------------------------------------------------------
-    # Safety net on create (catches programmatic creation without defaults)
+    # Populate shift AFTER super().create() so we use the record's actual
+    # resolved values (move_type, invoice_date, company_id) rather than
+    # the raw vals dict, which may be incomplete or pre-processed away by
+    # Odoo's _sync_dynamic_lines context manager.
     # ------------------------------------------------------------------
 
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('move_type') == 'out_receipt' and not vals.get('fms_shift_id'):
-                date  = vals.get('invoice_date') or fields.Date.today()
-                cid   = vals.get('company_id') or self.env.company.id
-                shift = self.env['fms.shift']._get_current_shift(date, cid)
-                if shift:
-                    vals['fms_shift_id'] = shift.id
-        return super().create(vals_list)
+        moves = super().create(vals_list)
+        to_fix = moves.filtered(
+            lambda m: m.move_type == 'out_receipt' and not m.fms_shift_id
+        )
+        for move in to_fix:
+            shift = self.env['fms.shift']._get_current_shift(
+                move.invoice_date or fields.Date.today(),
+                move.company_id.id,
+            )
+            if shift:
+                # Write directly — bypass readonly view restriction which
+                # applies to the client, not server-side writes.
+                move.write({'fms_shift_id': shift.id})
+        return moves
 
     # ------------------------------------------------------------------
     # Constraints
