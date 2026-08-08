@@ -61,8 +61,10 @@
                         <group string="Forecourt">
                             <field name="invoice_date"     string="Date"
                                    readonly="state != 'draft'"/>
+                            <!-- TODO: auto-resolve shift from invoice_date once
+                                 _get_current_shift() reliably finds a same-day open shift -->
                             <field name="fms_shift_id"     string="Shift"
-                                   readonly="1"
+                                   readonly="state != 'draft'"
                                    options="{'no_open': True, 'no_create': True}"/>
                             <div class="alert alert-warning py-1 px-2 mb-0"
                                  role="alert"
