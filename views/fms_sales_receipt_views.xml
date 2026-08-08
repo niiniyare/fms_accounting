@@ -13,12 +13,12 @@
                   decoration-muted="state == 'cancel'"
                   decoration-success="state == 'posted'"
                   default_order="invoice_date desc, name desc">
-                <field name="name"            string="Receipt #"/>
+                <field name="name"             string="Receipt #"/>
                 <field name="invoice_date"    string="Date"/>
                 <field name="fms_shift_id"    string="Shift"/>
                 <field name="fms_attendant_id" string="Attendant"/>
                 <field name="partner_id"      string="Customer"/>
-                <field name="fms_vehicle_reg" string="Vehicle Reg"/>
+                <field name="fms_vehicle_reg" string="Vehicle Reg" optional="show"/>
                 <field name="amount_total"    string="Total (KES)" sum="Total"/>
                 <field name="state"           widget="badge"
                        decoration-success="state == 'posted'"
@@ -57,48 +57,44 @@
 
                     <group>
                         <group string="Forecourt">
-                            <field name="fms_shift_id"
-                                   options="{'no_create': True}"
+                            <field name="invoice_date"     string="Date"
                                    readonly="state != 'draft'"/>
-                            <field name="fms_attendant_id"
+                            <field name="fms_shift_id"     string="Shift"
+                                   readonly="1"
+                                   options="{'no_open': True}"/>
+                            <field name="fms_attendant_id" string="Attendant"
                                    readonly="state != 'draft'"/>
-                            <field name="fms_vehicle_reg"
+                            <field name="fms_vehicle_reg"  string="Vehicle Reg"
                                    placeholder="e.g. KBZ 123X"
                                    readonly="state != 'draft'"/>
                         </group>
                         <group string="Transaction">
-                            <field name="invoice_date" string="Date"
+                            <field name="partner_id"  string="Customer"
                                    readonly="state != 'draft'"/>
-                            <field name="partner_id"   string="Customer"
-                                   readonly="state != 'draft'"/>
-                            <field name="journal_id"   string="Payment Method"
+                            <field name="journal_id"  string="Payment Method"
                                    readonly="state != 'draft'"
                                    domain="[('type', 'in', ('cash', 'bank'))]"
                                    options="{'no_create': True}"/>
-                            <field name="currency_id"  invisible="1"/>
-                            <field name="move_type"    invisible="1"/>
-                            <field name="company_id"   invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="move_type"   invisible="1"/>
+                            <field name="company_id"  invisible="1"/>
                         </group>
                     </group>
 
                     <!-- Lines -->
                     <field name="invoice_line_ids" readonly="state != 'draft'">
                         <list editable="bottom">
-                            <field name="fms_nozzle_id"  string="Nozzle" optional="show"/>
                             <field name="product_id"     string="Product" required="1"/>
                             <field name="quantity"       string="Qty / Litres"/>
                             <field name="price_unit"     string="Unit Price"/>
-                            <field name="tax_ids"        optional="hide"/>
+                            <field name="tax_ids"        string="Tax" optional="show"/>
                             <field name="price_subtotal" string="Subtotal" readonly="1"/>
                         </list>
                     </field>
 
-                    <!-- Totals -->
-                    <group class="oe_right">
-                        <field name="amount_untaxed" string="Subtotal" readonly="1"/>
-                        <field name="amount_tax"     string="Tax"      readonly="1"/>
-                        <field name="amount_total"   string="Total (KES)" readonly="1"/>
-                    </group>
+                    <!-- Totals — live tax computation via native widget -->
+                    <field name="tax_totals" widget="account-tax-totals-field"
+                           readonly="state != 'draft'" nolabel="1"/>
 
                 </sheet>
 

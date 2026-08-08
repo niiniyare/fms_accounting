@@ -2,7 +2,7 @@
 fms_sales_receipt.py — Per-transaction Sales Receipt extension on account.move.
 
 Native Odoo document: account.move, move_type='out_receipt'.
-FMS adds shift / attendant / vehicle_reg to the header and nozzle to each line.
+FMS adds shift (auto-resolved from date) / attendant / vehicle_reg to the header.
 No custom model is created (see feature.md §2 for the rationale).
 """
 
@@ -18,8 +18,8 @@ class FMSSalesReceiptMove(models.Model):
         string='Shift',
         index=True,
         ondelete='restrict',
-        domain=[('state', 'in', ('open', 'closing'))],
-        help="The shift during which this sale was made.",
+        readonly=True,
+        help="Auto-resolved from the receipt date — the open shift for that day.",
     )
     fms_attendant_id = fields.Many2one(
         'hr.employee',
@@ -33,10 +33,33 @@ class FMSSalesReceiptMove(models.Model):
         help="Customer vehicle registration — optional for walk-in cash.",
     )
 
-    @api.onchange('fms_shift_id')
-    def _onchange_fms_shift_date(self):
-        if self.fms_shift_id and not self.invoice_date:
-            self.invoice_date = self.fms_shift_id.date
+    def _fms_find_shift(self, date, company_id):
+        """Return the open/closing shift for date+company, or empty recordset."""
+        return self.env['fms.shift'].search([
+            ('date',       '=',  date),
+            ('state',      'in', ('open', 'closing')),
+            ('company_id', '=',  company_id),
+        ], limit=1)
+
+    @api.onchange('invoice_date')
+    def _onchange_invoice_date_fms_shift(self):
+        """Auto-populate shift whenever the user changes the receipt date."""
+        for move in self:
+            if move.move_type != 'out_receipt':
+                continue
+            date = move.invoice_date or fields.Date.today()
+            move.fms_shift_id = self._fms_find_shift(date, move.company_id.id)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('move_type') == 'out_receipt' and not vals.get('fms_shift_id'):
+                date = vals.get('invoice_date') or fields.Date.today()
+                cid  = vals.get('company_id') or self.env.company.id
+                shift = self._fms_find_shift(date, cid)
+                if shift:
+                    vals['fms_shift_id'] = shift.id
+        return super().create(vals_list)
 
     @api.constrains('fms_shift_id', 'move_type', 'company_id')
     def _check_fms_receipt_shift(self):
@@ -54,14 +77,3 @@ class FMSSalesReceiptMove(models.Model):
                     "Shift company (%s) does not match document company (%s)."
                     % (shift.company_id.name, move.company_id.name)
                 )
-
-
-class FMSSalesReceiptLine(models.Model):
-    _inherit = 'account.move.line'
-
-    fms_nozzle_id = fields.Many2one(
-        'fms.pump.nozzle',
-        string='Nozzle',
-        ondelete='set null',
-        help="Nozzle that dispensed the fuel — links the receipt line to the meter.",
-    )
