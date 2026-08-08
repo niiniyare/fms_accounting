@@ -84,11 +84,14 @@
                     <!-- Lines -->
                     <field name="invoice_line_ids" readonly="state != 'draft'">
                         <list editable="bottom">
-                            <field name="product_id"     string="Product" required="1"/>
-                            <field name="quantity"       string="Qty / Litres"/>
-                            <field name="price_unit"     string="Unit Price"/>
-                            <field name="tax_ids"        string="Tax" optional="show"/>
-                            <field name="price_subtotal" string="Subtotal" readonly="1"/>
+                            <field name="product_id"      string="Product"      required="1"/>
+                            <field name="fms_line_amount" string="Amount (KES)"
+                                   optional="show"/>
+                            <field name="price_unit"      string="Price / Litre"/>
+                            <field name="quantity"        string="Litres"
+                                   optional="show"/>
+                            <field name="tax_ids"         string="Tax"          optional="show"/>
+                            <field name="price_subtotal"  string="Subtotal"     readonly="1"/>
                         </list>
                     </field>
 

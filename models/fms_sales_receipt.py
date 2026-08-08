@@ -77,3 +77,31 @@ class FMSSalesReceiptMove(models.Model):
                     "Shift company (%s) does not match document company (%s)."
                     % (shift.company_id.name, move.company_id.name)
                 )
+
+
+class FMSSalesReceiptLine(models.Model):
+    _inherit = 'account.move.line'
+
+    fms_line_amount = fields.Float(
+        'Amount (KES)',
+        digits=(16, 2),
+        help="Enter the sale amount; litres are back-calculated from the unit price.",
+    )
+
+    @api.onchange('fms_line_amount', 'price_unit')
+    def _onchange_fms_line_amount(self):
+        """Back-calculate quantity from amount ÷ unit price."""
+        for line in self:
+            if line.fms_line_amount and line.price_unit:
+                line.quantity = line.fms_line_amount / line.price_unit
+            elif line.fms_line_amount and not line.price_unit:
+                # No price yet — store amount as price_unit with qty=1
+                line.price_unit = line.fms_line_amount
+                line.quantity   = 1.0
+
+    @api.onchange('quantity', 'price_unit')
+    def _onchange_qty_price_sync_amount(self):
+        """Keep fms_line_amount in sync when qty or price is edited directly."""
+        for line in self:
+            if line.quantity and line.price_unit:
+                line.fms_line_amount = line.quantity * line.price_unit
