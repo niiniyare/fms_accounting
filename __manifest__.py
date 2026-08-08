@@ -19,6 +19,7 @@
         "views/fms_petty_cash_views.xml",
         "views/fms_pdc_views.xml",
         "views/fms_report_debtor_views.xml",
+        "views/fms_receipt_reconciliation_views.xml",
 
         # Reports
         "reports/fms_ar_statement_report.xml",

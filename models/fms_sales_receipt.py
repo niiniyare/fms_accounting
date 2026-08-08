@@ -32,6 +32,17 @@ class FMSSalesReceiptMove(models.Model):
         size=20,
         help="Customer vehicle registration — optional for walk-in cash.",
     )
+    fms_receipt_no = fields.Char(
+        'Physical Receipt No',
+        size=30,
+        index=True,
+        help="Printed slip / pump receipt number handed to the customer.",
+    )
+    fms_card_number = fields.Char(
+        'Card / Cheque Ref',
+        size=30,
+        help="Last 4 digits of card, cheque number, or MPesa confirmation code.",
+    )
 
     def _fms_find_shift(self, date, company_id):
         """Return the open/closing shift for date+company, or empty recordset."""

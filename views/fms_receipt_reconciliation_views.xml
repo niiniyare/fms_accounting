@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Receipt Reconciliation — pivot (primary view)
+    ================================================================ -->
+
+    <record id="view_fms_receipt_recon_pivot" model="ir.ui.view">
+        <field name="name">fms.report.receipt.reconciliation.pivot</field>
+        <field name="model">fms.report.receipt.reconciliation</field>
+        <field name="arch" type="xml">
+            <pivot string="Receipt Reconciliation" disable_linking="false">
+                <field name="shift_id"     type="row"/>
+                <field name="attendant_id" type="row"/>
+                <field name="payment_mode" type="row"/>
+                <field name="product_name" type="row"/>
+                <field name="receipt_count" type="measure" string="Receipts"/>
+                <field name="total_litres"  type="measure" string="Litres"/>
+                <field name="total_amount"  type="measure" string="Amount (KES)"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Receipt Reconciliation — list (drill-down)
+    ================================================================ -->
+
+    <record id="view_fms_receipt_recon_list" model="ir.ui.view">
+        <field name="name">fms.report.receipt.reconciliation.list</field>
+        <field name="model">fms.report.receipt.reconciliation</field>
+        <field name="arch" type="xml">
+            <list string="Receipt Reconciliation"
+                  create="false" edit="false" delete="false"
+                  default_order="shift_date desc, attendant_id, payment_mode, product_name">
+                <field name="shift_date"    string="Date"/>
+                <field name="shift_id"      string="Shift"/>
+                <field name="shift_label"   string="Period"   optional="show"/>
+                <field name="attendant_id"  string="Attendant"/>
+                <field name="payment_mode"  string="Payment Mode"/>
+                <field name="product_name"  string="Product"/>
+                <field name="receipt_count" string="Receipts" sum="Receipts"/>
+                <field name="total_litres"  string="Litres"   sum="Litres"/>
+                <field name="total_amount"  string="Amount (KES)" sum="Amount"/>
+                <field name="state_draft"   string="Draft"    optional="show"/>
+                <field name="state_posted"  string="Confirmed" optional="show"
+                       decoration-danger="state_posted == 0"
+                       decoration-success="state_posted &gt; 0"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Receipt Reconciliation — search
+    ================================================================ -->
+
+    <record id="view_fms_receipt_recon_search" model="ir.ui.view">
+        <field name="name">fms.report.receipt.reconciliation.search</field>
+        <field name="model">fms.report.receipt.reconciliation</field>
+        <field name="arch" type="xml">
+            <search string="Receipt Reconciliation">
+                <field name="shift_id"     string="Shift"/>
+                <field name="attendant_id" string="Attendant"/>
+                <field name="payment_mode" string="Payment Mode"/>
+                <field name="product_name" string="Product"/>
+                <!-- Default: today's shifts -->
+                <filter name="today" string="Today"
+                        domain="[('shift_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="this_month" string="This Month"
+                        domain="[('shift_date','&gt;=',context_today() + relativedelta(day=1))]"/>
+                <filter name="has_draft" string="Has Unconfirmed"
+                        domain="[('state_draft','&gt;',0)]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter name="by_shift"    string="Shift"
+                            context="{'group_by': 'shift_id'}"/>
+                    <filter name="by_attendant" string="Attendant"
+                            context="{'group_by': 'attendant_id'}"/>
+                    <filter name="by_payment"  string="Payment Mode"
+                            context="{'group_by': 'payment_mode'}"/>
+                    <filter name="by_product"  string="Product"
+                            context="{'group_by': 'product_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Action
+    ================================================================ -->
+
+    <record id="action_fms_receipt_reconciliation" model="ir.actions.act_window">
+        <field name="name">Receipt Reconciliation</field>
+        <field name="res_model">fms.report.receipt.reconciliation</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No receipt data yet.</p>
+            <p>Receipts will appear here once created under Operations → Sales Receipts.</p>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Menu — Reporting > Sales & Margin > Receipt Reconciliation
+    ================================================================ -->
+
+    <menuitem id="menu_fms_receipt_reconciliation"
+              name="Receipt Reconciliation"
+              parent="fms.menu_fms_section_sales_margin"
+              action="action_fms_receipt_reconciliation"
+              groups="fms.group_fms_supervisor"
+              sequence="15"/>
+
+</odoo>

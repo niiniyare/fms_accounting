@@ -13,14 +13,16 @@
                   decoration-muted="state == 'cancel'"
                   decoration-success="state == 'posted'"
                   default_order="invoice_date desc, name desc">
-                <field name="name"             string="Receipt #"/>
-                <field name="invoice_date"    string="Date"/>
-                <field name="fms_shift_id"    string="Shift"/>
-                <field name="fms_attendant_id" string="Attendant"/>
-                <field name="partner_id"      string="Customer"/>
-                <field name="fms_vehicle_reg" string="Vehicle Reg" optional="show"/>
-                <field name="amount_total"    string="Total (KES)" sum="Total"/>
-                <field name="state"           widget="badge"
+                <field name="name"              string="Receipt #"/>
+                <field name="fms_receipt_no"    string="Physical Receipt" optional="show"/>
+                <field name="invoice_date"      string="Date"/>
+                <field name="fms_shift_id"      string="Shift"/>
+                <field name="fms_attendant_id"  string="Attendant"/>
+                <field name="partner_id"        string="Customer"/>
+                <field name="fms_vehicle_reg"   string="Vehicle Reg"   optional="show"/>
+                <field name="fms_card_number"   string="Card/Cheque"   optional="show"/>
+                <field name="amount_total"      string="Total (KES)"   sum="Total"/>
+                <field name="state"             widget="badge"
                        decoration-success="state == 'posted'"
                        decoration-warning="state == 'draft'"
                        decoration-danger="state == 'cancel'"/>
@@ -69,12 +71,18 @@
                                    readonly="state != 'draft'"/>
                         </group>
                         <group string="Transaction">
-                            <field name="partner_id"  string="Customer"
+                            <field name="partner_id"     string="Customer"
                                    readonly="state != 'draft'"/>
-                            <field name="journal_id"  string="Payment Method"
+                            <field name="journal_id"     string="Payment Method"
                                    readonly="state != 'draft'"
                                    domain="[('type', 'in', ('cash', 'bank'))]"
                                    options="{'no_create': True}"/>
+                            <field name="fms_receipt_no" string="Physical Receipt No"
+                                   placeholder="Slip / pump receipt number"
+                                   readonly="state != 'draft'"/>
+                            <field name="fms_card_number" string="Card / Cheque Ref"
+                                   placeholder="Last 4 digits or confirmation code"
+                                   readonly="state != 'draft'"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="move_type"   invisible="1"/>
                             <field name="company_id"  invisible="1"/>
@@ -85,11 +93,9 @@
                     <field name="invoice_line_ids" readonly="state != 'draft'">
                         <list editable="bottom">
                             <field name="product_id"      string="Product"      required="1"/>
-                            <field name="fms_line_amount" string="Amount (KES)"
-                                   optional="show"/>
+                            <field name="fms_line_amount" string="Amount (KES)"/>
                             <field name="price_unit"      string="Price / Litre"/>
-                            <field name="quantity"        string="Litres"
-                                   optional="show"/>
+                            <field name="quantity"        string="Litres"       optional="show"/>
                             <field name="tax_ids"         string="Tax"          optional="show"/>
                             <field name="price_subtotal"  string="Subtotal"     readonly="1"/>
                         </list>
@@ -116,25 +122,36 @@
         <field name="model">account.move</field>
         <field name="arch" type="xml">
             <search string="Sales Receipts">
-                <field name="name"            string="Receipt #"/>
-                <field name="partner_id"      string="Customer"/>
-                <field name="fms_shift_id"    string="Shift"/>
+                <field name="name"             string="Receipt #"/>
+                <field name="fms_receipt_no"   string="Physical Receipt No"/>
+                <field name="fms_card_number"  string="Card / Cheque Ref"/>
+                <field name="partner_id"       string="Customer"/>
+                <field name="fms_shift_id"     string="Shift"/>
                 <field name="fms_attendant_id" string="Attendant"/>
-                <field name="fms_vehicle_reg" string="Vehicle Reg"/>
-                <filter name="draft"  string="Draft"     domain="[('state','=','draft')]"/>
-                <filter name="posted" string="Confirmed" domain="[('state','=','posted')]"/>
+                <field name="fms_vehicle_reg"  string="Vehicle Reg"/>
+                <!-- Default: current open shift for today -->
+                <filter name="current_shift" string="Current Shift"
+                        domain="[('fms_shift_id.state','=','open'),
+                                 ('fms_shift_id.date','=',context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="draft"  string="Draft"
+                        domain="[('state','=','draft')]"/>
+                <filter name="posted" string="Confirmed"
+                        domain="[('state','=','posted')]"/>
                 <separator/>
                 <filter name="today" string="Today"
-                        domain="[('invoice_date','=', context_today().strftime('%Y-%m-%d'))]"/>
+                        domain="[('invoice_date','=',context_today().strftime('%Y-%m-%d'))]"/>
                 <filter name="this_month" string="This Month"
-                        domain="[('invoice_date','&gt;=', context_today() + relativedelta(day=1))]"/>
+                        domain="[('invoice_date','&gt;=',context_today() + relativedelta(day=1))]"/>
                 <separator/>
                 <group expand="0" string="Group By">
-                    <filter name="by_shift"     string="Shift"
+                    <filter name="by_shift"       string="Shift"
                             context="{'group_by': 'fms_shift_id'}"/>
-                    <filter name="by_attendant" string="Attendant"
+                    <filter name="by_attendant"   string="Attendant"
                             context="{'group_by': 'fms_attendant_id'}"/>
-                    <filter name="by_date"      string="Date"
+                    <filter name="by_journal"     string="Payment Method"
+                            context="{'group_by': 'journal_id'}"/>
+                    <filter name="by_date"        string="Date"
                             context="{'group_by': 'invoice_date:day'}"/>
                 </group>
             </search>
@@ -142,7 +159,7 @@
     </record>
 
     <!-- ================================================================
-         Action — restricted to FMS sales receipts
+         Action — default to current shift filter
     ================================================================ -->
 
     <record id="action_fms_sales_receipt" model="ir.actions.act_window">
@@ -151,8 +168,8 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type','=','out_receipt')]</field>
         <field name="context">{
-            'default_move_type': 'out_receipt',
-            'search_default_posted': 0
+            'default_move_type':          'out_receipt',
+            'search_default_current_shift': 1
         }</field>
         <field name="view_ids" eval="[
             (5, 0, 0),

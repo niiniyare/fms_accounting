@@ -53,4 +53,14 @@
         <field name="perm_unlink" eval="0"/>
     </record>
 
+    <record id="access_fms_receipt_reconciliation_supervisor" model="ir.model.access">
+        <field name="name">fms.report.receipt.reconciliation supervisor</field>
+        <field name="model_id" ref="model_fms_report_receipt_reconciliation"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
 </odoo>
