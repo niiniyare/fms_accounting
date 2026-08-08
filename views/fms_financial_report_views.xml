@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Profit & Loss — wizard
+    ================================================================ -->
+    <record id="view_fms_report_pl_form" model="ir.ui.view">
+        <field name="name">fms.report.pl.form</field>
+        <field name="model">fms.report.pl</field>
+        <field name="arch" type="xml">
+            <form string="Profit &amp; Loss">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="target_move"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print" string="Print PDF"
+                            type="object" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fms_report_pl" model="ir.actions.act_window">
+        <field name="name">Profit &amp; Loss</field>
+        <field name="res_model">fms.report.pl</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ================================================================
+         Balance Sheet — wizard
+    ================================================================ -->
+    <record id="view_fms_report_bs_form" model="ir.ui.view">
+        <field name="name">fms.report.balance.sheet.form</field>
+        <field name="model">fms.report.balance.sheet</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="target_move"/>
+                        </group>
+                        <group>
+                            <field name="date_to" string="As of Date"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print" string="Print PDF"
+                            type="object" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fms_report_balance_sheet" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">fms.report.balance.sheet</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ================================================================
+         Trial Balance — wizard
+    ================================================================ -->
+    <record id="view_fms_report_tb_form" model="ir.ui.view">
+        <field name="name">fms.report.trial.balance.form</field>
+        <field name="model">fms.report.trial.balance</field>
+        <field name="arch" type="xml">
+            <form string="Trial Balance">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="target_move"/>
+                            <field name="hide_zero"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print" string="Print PDF"
+                            type="object" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fms_report_trial_balance" model="ir.actions.act_window">
+        <field name="name">Trial Balance</field>
+        <field name="res_model">fms.report.trial.balance</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ================================================================
+         Menu items — Forecourt > Reporting
+    ================================================================ -->
+    <menuitem id="menu_fms_report_pl"
+              name="Profit &amp; Loss"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_pl"
+              groups="fms.group_fms_supervisor"
+              sequence="20"/>
+
+    <menuitem id="menu_fms_report_bs"
+              name="Balance Sheet"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_balance_sheet"
+              groups="fms.group_fms_supervisor"
+              sequence="21"/>
+
+    <menuitem id="menu_fms_report_tb"
+              name="Trial Balance"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_trial_balance"
+              groups="fms.group_fms_supervisor"
+              sequence="22"/>
+
+</odoo>

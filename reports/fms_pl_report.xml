@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_fms_pl_document">
+        <t t-call="web.external_layout">
+            <t t-set="data" t-value="doc.get_report_data()"/>
+            <div class="page">
+
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 style="font-weight:700; margin-bottom:2px;">Profit &amp; Loss Statement</h2>
+                        <p style="color:#666; margin:0;">
+                            <t t-if="data['wizard'].date_from">
+                                <t t-out="data['wizard'].date_from"/> —
+                            </t>
+                            <t t-out="data['wizard'].date_to"/>
+                             | 
+                            <t t-out="data['wizard'].target_move == 'posted' and 'Posted Entries Only' or 'All Entries'"/>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Helper macro: render one account row -->
+                <t t-set="currency" t-value="data['currency']"/>
+
+                <!-- ── INCOME ─────────────────────────────────────────────── -->
+                <table class="table table-sm" style="font-size:11px;">
+                    <thead>
+                        <tr style="background:#1a1a2e; color:#fff;">
+                            <th style="width:12%;">Code</th>
+                            <th>Account</th>
+                            <th class="text-end" style="width:18%;">Debit</th>
+                            <th class="text-end" style="width:18%;">Credit</th>
+                            <th class="text-end" style="width:18%;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Income section -->
+                        <tr style="background:#e8f4e8; font-weight:600;">
+                            <td colspan="5">REVENUE</td>
+                        </tr>
+                        <t t-foreach="data['income_rows']" t-as="row">
+                            <tr>
+                                <td style="color:#888;"><t t-out="row['code']"/></td>
+                                <td><t t-out="row['name']"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['debit'])"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['credit'])"/></td>
+                                <td class="text-end" t-att-style="'color:green;' if row['balance'] >= 0 else 'color:red;'">
+                                    <t t-out="'{:,.2f}'.format(row['balance'])"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <t t-if="not data['income_rows']">
+                            <tr><td colspan="5" class="text-center text-muted">No income entries for this period.</td></tr>
+                        </t>
+                        <tr style="background:#c8e6c9; font-weight:700; border-top:2px solid #388e3c;">
+                            <td colspan="4" class="text-end">Total Revenue</td>
+                            <td class="text-end" t-att-style="'color:green;' if data['total_income'] >= 0 else 'color:red;'">
+                                <t t-out="'{:,.2f}'.format(data['total_income'])"/>
+                            </td>
+                        </tr>
+
+                        <!-- COGS section -->
+                        <tr style="background:#fff3e0; font-weight:600;">
+                            <td colspan="5">COST OF SALES</td>
+                        </tr>
+                        <t t-foreach="data['cogs_rows']" t-as="row">
+                            <tr>
+                                <td style="color:#888;"><t t-out="row['code']"/></td>
+                                <td><t t-out="row['name']"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['debit'])"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['credit'])"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                            </tr>
+                        </t>
+                        <t t-if="not data['cogs_rows']">
+                            <tr><td colspan="5" class="text-center text-muted">No cost of sales entries.</td></tr>
+                        </t>
+                        <tr style="background:#ffe0b2; font-weight:700; border-top:2px solid #f57c00;">
+                            <td colspan="4" class="text-end">Total Cost of Sales</td>
+                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_cogs'])"/></td>
+                        </tr>
+
+                        <!-- Gross Profit -->
+                        <tr style="background:#1a1a2e; color:#fff; font-weight:700; font-size:12px;">
+                            <td colspan="4" class="text-end">GROSS PROFIT</td>
+                            <td class="text-end" t-att-style="'color:#4caf50;' if data['gross_profit'] >= 0 else 'color:#ef5350;'">
+                                <t t-out="'{:,.2f}'.format(data['gross_profit'])"/>
+                            </td>
+                        </tr>
+
+                        <!-- Operating Expenses -->
+                        <tr style="background:#fce4ec; font-weight:600;">
+                            <td colspan="5">OPERATING EXPENSES</td>
+                        </tr>
+                        <t t-foreach="data['expense_rows']" t-as="row">
+                            <tr>
+                                <td style="color:#888;"><t t-out="row['code']"/></td>
+                                <td><t t-out="row['name']"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['debit'])"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['credit'])"/></td>
+                                <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                            </tr>
+                        </t>
+                        <t t-if="not data['expense_rows']">
+                            <tr><td colspan="5" class="text-center text-muted">No operating expense entries.</td></tr>
+                        </t>
+                        <tr style="background:#f8bbd0; font-weight:700; border-top:2px solid #c2185b;">
+                            <td colspan="4" class="text-end">Total Expenses</td>
+                            <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_expenses'])"/></td>
+                        </tr>
+
+                        <!-- Net Profit -->
+                        <tr style="background:#1a1a2e; color:#fff; font-weight:700; font-size:13px;">
+                            <td colspan="4" class="text-end">NET PROFIT / (LOSS)</td>
+                            <td class="text-end" t-att-style="'color:#4caf50; font-size:13px;' if data['net_profit'] >= 0 else 'color:#ef5350; font-size:13px;'">
+                                <t t-out="'{:,.2f}'.format(data['net_profit'])"/>
+                                <t t-out="' ' + data['currency'].name"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Footer note -->
+                <p style="font-size:9px; color:#999; margin-top:20px;">
+                    All amounts in <t t-out="data['currency'].name"/>.
+                    Generated by FMS Accounting — <t t-out="data['wizard'].company_id.name"/>.
+                </p>
+            </div>
+        </t>
+    </template>
+
+    <record id="action_report_fms_pl" model="ir.actions.report">
+        <field name="name">Profit &amp; Loss</field>
+        <field name="model">fms.report.pl</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fms_accounting.report_fms_pl_document</field>
+        <field name="report_file">fms_accounting.report_fms_pl_document</field>
+        <field name="binding_model_id" ref="model_fms_report_pl"/>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+</odoo>

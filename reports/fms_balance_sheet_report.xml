@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_fms_balance_sheet_document">
+        <t t-call="web.external_layout">
+            <t t-set="data" t-value="doc.get_report_data()"/>
+            <div class="page">
+
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 style="font-weight:700; margin-bottom:2px;">Balance Sheet</h2>
+                        <p style="color:#666; margin:0;">
+                            As of <t t-out="data['wizard'].date_to"/>
+                             | 
+                            <t t-out="data['wizard'].target_move == 'posted' and 'Posted Entries Only' or 'All Entries'"/>
+                            <t t-if="not data['balanced']">
+                                 | <span style="color:red; font-weight:600;">⚠ OUT OF BALANCE</span>
+                            </t>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <!-- LEFT: Assets -->
+                    <div class="col-6" style="padding-right:10px;">
+                        <table class="table table-sm" style="font-size:10.5px;">
+                            <thead>
+                                <tr style="background:#1a3a5c; color:#fff;">
+                                    <th colspan="3">ASSETS</th>
+                                </tr>
+                                <tr style="background:#e3f2fd;">
+                                    <th style="width:14%;">Code</th>
+                                    <th>Account</th>
+                                    <th class="text-end" style="width:28%;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Current Assets -->
+                                <tr style="background:#bbdefb; font-weight:600;">
+                                    <td colspan="3">Current Assets</td>
+                                </tr>
+                                <t t-foreach="data['asset_cur_rows']" t-as="row">
+                                    <tr>
+                                        <td style="color:#888; font-size:9.5px;"><t t-out="row['code']"/></td>
+                                        <td><t t-out="row['name']"/></td>
+                                        <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                                    </tr>
+                                </t>
+                                <t t-if="not data['asset_cur_rows']">
+                                    <tr><td colspan="3" class="text-muted text-center">—</td></tr>
+                                </t>
+                                <tr style="background:#90caf9; font-weight:700;">
+                                    <td colspan="2" class="text-end">Total Current Assets</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_asset_current'])"/></td>
+                                </tr>
+
+                                <!-- Fixed Assets -->
+                                <tr style="background:#bbdefb; font-weight:600;">
+                                    <td colspan="3">Fixed / Non-Current Assets</td>
+                                </tr>
+                                <t t-foreach="data['asset_fix_rows']" t-as="row">
+                                    <tr>
+                                        <td style="color:#888; font-size:9.5px;"><t t-out="row['code']"/></td>
+                                        <td><t t-out="row['name']"/></td>
+                                        <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                                    </tr>
+                                </t>
+                                <t t-if="not data['asset_fix_rows']">
+                                    <tr><td colspan="3" class="text-muted text-center">—</td></tr>
+                                </t>
+                                <tr style="background:#90caf9; font-weight:700;">
+                                    <td colspan="2" class="text-end">Total Fixed Assets</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_asset_fixed'])"/></td>
+                                </tr>
+
+                                <!-- Total Assets -->
+                                <tr style="background:#1a3a5c; color:#fff; font-weight:700; font-size:11.5px;">
+                                    <td colspan="2" class="text-end">TOTAL ASSETS</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_assets'])"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- RIGHT: Liabilities + Equity -->
+                    <div class="col-6" style="padding-left:10px;">
+                        <table class="table table-sm" style="font-size:10.5px;">
+                            <thead>
+                                <tr style="background:#4a235a; color:#fff;">
+                                    <th colspan="3">LIABILITIES &amp; EQUITY</th>
+                                </tr>
+                                <tr style="background:#f3e5f5;">
+                                    <th style="width:14%;">Code</th>
+                                    <th>Account</th>
+                                    <th class="text-end" style="width:28%;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Current Liabilities -->
+                                <tr style="background:#e1bee7; font-weight:600;">
+                                    <td colspan="3">Current Liabilities</td>
+                                </tr>
+                                <t t-foreach="data['liab_cur_rows']" t-as="row">
+                                    <tr>
+                                        <td style="color:#888; font-size:9.5px;"><t t-out="row['code']"/></td>
+                                        <td><t t-out="row['name']"/></td>
+                                        <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                                    </tr>
+                                </t>
+                                <t t-if="not data['liab_cur_rows']">
+                                    <tr><td colspan="3" class="text-muted text-center">—</td></tr>
+                                </t>
+                                <tr style="background:#ce93d8; font-weight:700;">
+                                    <td colspan="2" class="text-end">Total Current Liabilities</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_liab_cur'])"/></td>
+                                </tr>
+
+                                <!-- Long-term Liabilities -->
+                                <tr style="background:#e1bee7; font-weight:600;">
+                                    <td colspan="3">Long-term Liabilities</td>
+                                </tr>
+                                <t t-foreach="data['liab_lt_rows']" t-as="row">
+                                    <tr>
+                                        <td style="color:#888; font-size:9.5px;"><t t-out="row['code']"/></td>
+                                        <td><t t-out="row['name']"/></td>
+                                        <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                                    </tr>
+                                </t>
+                                <t t-if="not data['liab_lt_rows']">
+                                    <tr><td colspan="3" class="text-muted text-center">—</td></tr>
+                                </t>
+                                <tr style="background:#ce93d8; font-weight:700;">
+                                    <td colspan="2" class="text-end">Total Long-term Liabilities</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_liab_lt'])"/></td>
+                                </tr>
+
+                                <!-- Equity -->
+                                <tr style="background:#c8e6c9; font-weight:600;">
+                                    <td colspan="3">Equity</td>
+                                </tr>
+                                <t t-foreach="data['equity_rows']" t-as="row">
+                                    <tr>
+                                        <td style="color:#888; font-size:9.5px;"><t t-out="row['code']"/></td>
+                                        <td><t t-out="row['name']"/></td>
+                                        <td class="text-end"><t t-out="'{:,.2f}'.format(row['balance'])"/></td>
+                                    </tr>
+                                </t>
+                                <t t-if="not data['equity_rows']">
+                                    <tr><td colspan="3" class="text-muted text-center">—</td></tr>
+                                </t>
+                                <!-- Current year P&L -->
+                                <tr style="font-style:italic;">
+                                    <td style="color:#888;"></td>
+                                    <td>Current Year Profit / (Loss)</td>
+                                    <td class="text-end"
+                                        t-att-style="'color:green;' if data['current_year_profit'] >= 0 else 'color:red;'">
+                                        <t t-out="'{:,.2f}'.format(data['current_year_profit'])"/>
+                                    </td>
+                                </tr>
+                                <tr style="background:#a5d6a7; font-weight:700;">
+                                    <td colspan="2" class="text-end">Total Equity</td>
+                                    <td class="text-end"
+                                        t-att-style="'color:green;' if data['total_equity'] >= 0 else 'color:red;'">
+                                        <t t-out="'{:,.2f}'.format(data['total_equity'])"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Total L+E -->
+                                <tr style="background:#4a235a; color:#fff; font-weight:700; font-size:11.5px;">
+                                    <td colspan="2" class="text-end">TOTAL LIABILITIES &amp; EQUITY</td>
+                                    <td class="text-end"><t t-out="'{:,.2f}'.format(data['total_liab_equity'])"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <p style="font-size:9px; color:#999; margin-top:15px;">
+                    All amounts in <t t-out="data['currency'].name"/>.
+                    Generated by FMS Accounting — <t t-out="data['wizard'].company_id.name"/>.
+                </p>
+            </div>
+        </t>
+    </template>
+
+    <record id="action_report_fms_balance_sheet" model="ir.actions.report">
+        <field name="name">Balance Sheet</field>
+        <field name="model">fms.report.balance.sheet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fms_accounting.report_fms_balance_sheet_document</field>
+        <field name="report_file">fms_accounting.report_fms_balance_sheet_document</field>
+        <field name="binding_model_id" ref="model_fms_report_balance_sheet"/>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+</odoo>

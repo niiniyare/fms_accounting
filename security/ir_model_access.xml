@@ -63,4 +63,27 @@
         <field name="perm_unlink" eval="0"/>
     </record>
 
+    <!-- Financial report wizards — supervisor only -->
+    <record id="access_fms_report_pl_supervisor" model="ir.model.access">
+        <field name="name">fms.report.pl supervisor</field>
+        <field name="model_id" ref="model_fms_report_pl"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="1"/>
+    </record>
+    <record id="access_fms_report_bs_supervisor" model="ir.model.access">
+        <field name="name">fms.report.balance.sheet supervisor</field>
+        <field name="model_id" ref="model_fms_report_balance_sheet"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="1"/>
+    </record>
+    <record id="access_fms_report_tb_supervisor" model="ir.model.access">
+        <field name="name">fms.report.trial.balance supervisor</field>
+        <field name="model_id" ref="model_fms_report_trial_balance"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="1"/>
+    </record>
+
 </odoo>

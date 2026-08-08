@@ -13,6 +13,7 @@
         "data/fms_accounting_data.xml",
 
         # Views
+        "views/fms_financial_report_views.xml",
         "views/fms_sales_receipt_views.xml",
         "views/fms_credit_customer_views.xml",
         "views/fms_fuel_delivery_views.xml",
@@ -22,6 +23,9 @@
         "views/fms_receipt_reconciliation_views.xml",
 
         # Reports
+        "reports/fms_pl_report.xml",
+        "reports/fms_balance_sheet_report.xml",
+        "reports/fms_trial_balance_report.xml",
         "reports/fms_ar_statement_report.xml",
         "reports/fms_delivery_register_report.xml",
         "reports/fms_vat_summary_report.xml",
