@@ -62,10 +62,8 @@
                             <field name="invoice_date"     string="Date"
                                    readonly="state != 'draft'"/>
                             <field name="fms_shift_id"     string="Shift"
-                                   readonly="state != 'draft'"
-                                   required="move_type == 'out_receipt'"
-                                   domain="[('state','in',('open','closing'))]"
-                                   options="{'no_create': True}"/>
+                                   readonly="1"
+                                   options="{'no_open': True, 'no_create': True}"/>
                             <div class="alert alert-warning py-1 px-2 mb-0"
                                  role="alert"
                                  invisible="fms_shift_id != False or state != 'draft'">
