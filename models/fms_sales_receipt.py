@@ -13,14 +13,15 @@ from odoo.exceptions import ValidationError
 class FMSSalesReceiptMove(models.Model):
     _inherit = 'account.move'
 
-    # NOTE: readonly is NOT set here — it is enforced in the view.
-    # If set here, Odoo strips the value during default_get and create().
+    # readonly is enforced in the view, NOT here — Odoo strips model-level
+    # readonly fields from default_get/create vals before writing.
     fms_shift_id = fields.Many2one(
         'fms.shift',
         string='Shift',
         index=True,
         ondelete='restrict',
-        help="Auto-resolved from the receipt date — the open shift for that day.",
+        domain=[('state', 'in', ('open', 'closing'))],
+        help="Auto-resolved from the receipt date; can be changed manually.",
     )
     fms_attendant_id = fields.Many2one(
         'hr.employee',
@@ -49,14 +50,6 @@ class FMSSalesReceiptMove(models.Model):
     # Helpers
     # ------------------------------------------------------------------
 
-    def _fms_find_shift(self, date, company_id):
-        """Return the open/closing shift for date+company, or empty recordset."""
-        return self.env['fms.shift'].search([
-            ('date',       '=',  date),
-            ('state',      'in', ('open', 'closing')),
-            ('company_id', '=',  company_id),
-        ], limit=1)
-
     def _fms_last_receipt_journal(self):
         """Return the journal used on the most recent out_receipt by this user."""
         last = self.env['account.move'].search([
@@ -83,7 +76,7 @@ class FMSSalesReceiptMove(models.Model):
 
         # Auto-resolve shift
         if 'fms_shift_id' in fields_list and not vals.get('fms_shift_id'):
-            shift = self._fms_find_shift(date, cid)
+            shift = self.env['fms.shift']._get_current_shift(date, cid)
             if shift:
                 vals['fms_shift_id'] = shift.id
 
@@ -105,7 +98,7 @@ class FMSSalesReceiptMove(models.Model):
             if move.move_type != 'out_receipt':
                 continue
             date = move.invoice_date or fields.Date.today()
-            move.fms_shift_id = self._fms_find_shift(date, move.company_id.id)
+            move.fms_shift_id = self.env['fms.shift']._get_current_shift(date, move.company_id.id)
 
     # ------------------------------------------------------------------
     # Safety net on create (catches programmatic creation without defaults)
@@ -117,7 +110,7 @@ class FMSSalesReceiptMove(models.Model):
             if vals.get('move_type') == 'out_receipt' and not vals.get('fms_shift_id'):
                 date  = vals.get('invoice_date') or fields.Date.today()
                 cid   = vals.get('company_id') or self.env.company.id
-                shift = self._fms_find_shift(date, cid)
+                shift = self.env['fms.shift']._get_current_shift(date, cid)
                 if shift:
                     vals['fms_shift_id'] = shift.id
         return super().create(vals_list)
