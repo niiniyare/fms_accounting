@@ -62,9 +62,16 @@
                             <field name="invoice_date"     string="Date"
                                    readonly="state != 'draft'"/>
                             <field name="fms_shift_id"     string="Shift"
-                                   readonly="1"
-                                   options="{'no_open': True}"/>
+                                   readonly="state != 'draft'"
+                                   required="move_type == 'out_receipt'"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <div class="alert alert-warning py-1 px-2 mb-0"
+                                 role="alert"
+                                 invisible="fms_shift_id != False or state != 'draft'">
+                                No open shift found for today. Open a shift first.
+                            </div>
                             <field name="fms_attendant_id" string="Attendant"
+                                   required="move_type == 'out_receipt'"
                                    readonly="state != 'draft'"/>
                             <field name="fms_vehicle_reg"  string="Vehicle Reg"
                                    placeholder="e.g. KBZ 123X"

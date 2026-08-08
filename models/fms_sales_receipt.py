@@ -13,12 +13,13 @@ from odoo.exceptions import ValidationError
 class FMSSalesReceiptMove(models.Model):
     _inherit = 'account.move'
 
+    # NOTE: readonly is NOT set here — it is enforced in the view.
+    # If set here, Odoo strips the value during default_get and create().
     fms_shift_id = fields.Many2one(
         'fms.shift',
         string='Shift',
         index=True,
         ondelete='restrict',
-        readonly=True,
         help="Auto-resolved from the receipt date — the open shift for that day.",
     )
     fms_attendant_id = fields.Many2one(
@@ -44,6 +45,10 @@ class FMSSalesReceiptMove(models.Model):
         help="Last 4 digits of card, cheque number, or MPesa confirmation code.",
     )
 
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
     def _fms_find_shift(self, date, company_id):
         """Return the open/closing shift for date+company, or empty recordset."""
         return self.env['fms.shift'].search([
@@ -52,25 +57,74 @@ class FMSSalesReceiptMove(models.Model):
             ('company_id', '=',  company_id),
         ], limit=1)
 
+    def _fms_last_receipt_journal(self):
+        """Return the journal used on the most recent out_receipt by this user."""
+        last = self.env['account.move'].search([
+            ('move_type',  '=', 'out_receipt'),
+            ('create_uid', '=', self.env.uid),
+            ('journal_id', '!=', False),
+        ], order='id desc', limit=1)
+        return last.journal_id
+
+    # ------------------------------------------------------------------
+    # Default population — fires when user clicks New
+    # ------------------------------------------------------------------
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+
+        # Only enrich new Sales Receipt forms
+        if vals.get('move_type') != 'out_receipt':
+            return vals
+
+        cid  = vals.get('company_id') or self.env.company.id
+        date = vals.get('invoice_date') or fields.Date.today()
+
+        # Auto-resolve shift
+        if 'fms_shift_id' in fields_list and not vals.get('fms_shift_id'):
+            shift = self._fms_find_shift(date, cid)
+            if shift:
+                vals['fms_shift_id'] = shift.id
+
+        # Remember last payment mode
+        if 'journal_id' in fields_list and not vals.get('journal_id'):
+            last_journal = self._fms_last_receipt_journal()
+            if last_journal:
+                vals['journal_id'] = last_journal.id
+
+        return vals
+
+    # ------------------------------------------------------------------
+    # Re-resolve shift when date changes in the form
+    # ------------------------------------------------------------------
+
     @api.onchange('invoice_date')
     def _onchange_invoice_date_fms_shift(self):
-        """Auto-populate shift whenever the user changes the receipt date."""
         for move in self:
             if move.move_type != 'out_receipt':
                 continue
             date = move.invoice_date or fields.Date.today()
             move.fms_shift_id = self._fms_find_shift(date, move.company_id.id)
 
+    # ------------------------------------------------------------------
+    # Safety net on create (catches programmatic creation without defaults)
+    # ------------------------------------------------------------------
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('move_type') == 'out_receipt' and not vals.get('fms_shift_id'):
-                date = vals.get('invoice_date') or fields.Date.today()
-                cid  = vals.get('company_id') or self.env.company.id
+                date  = vals.get('invoice_date') or fields.Date.today()
+                cid   = vals.get('company_id') or self.env.company.id
                 shift = self._fms_find_shift(date, cid)
                 if shift:
                     vals['fms_shift_id'] = shift.id
         return super().create(vals_list)
+
+    # ------------------------------------------------------------------
+    # Constraints
+    # ------------------------------------------------------------------
 
     @api.constrains('fms_shift_id', 'move_type', 'company_id')
     def _check_fms_receipt_shift(self):
@@ -106,7 +160,6 @@ class FMSSalesReceiptLine(models.Model):
             if line.fms_line_amount and line.price_unit:
                 line.quantity = line.fms_line_amount / line.price_unit
             elif line.fms_line_amount and not line.price_unit:
-                # No price yet — store amount as price_unit with qty=1
                 line.price_unit = line.fms_line_amount
                 line.quantity   = 1.0
 
