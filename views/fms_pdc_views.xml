@@ -13,7 +13,6 @@
                     <field name="fms_cheque_number" string="Cheque No."/>
                     <field name="fms_cheque_date" string="Cheque Date"/>
                     <field name="fms_pdc_state" string="PDC Status"/>
-                    <field name="fms_credit_customer_id" string="Credit Account"/>
                 </group>
                 <field name="fms_is_pdc" string="Post-Dated Cheque" widget="boolean_toggle"/>
             </xpath>
@@ -32,7 +31,6 @@
                 <field name="date" string="Received"/>
                 <field name="fms_cheque_date" string="Cheque Date"/>
                 <field name="partner_id" string="Customer"/>
-                <field name="fms_credit_customer_id" string="Credit Account"/>
                 <field name="fms_cheque_number" string="Cheque No."/>
                 <field name="amount" string="Amount (KES)" sum="Total"/>
                 <field name="fms_pdc_state" string="Status" widget="badge"

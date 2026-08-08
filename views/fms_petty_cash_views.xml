@@ -1,105 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Petty Cash Float -->
-    <record id="view_fms_petty_cash_float_form" model="ir.ui.view">
-        <field name="name">fms.petty.cash.float.form</field>
-        <field name="model">fms.petty.cash.float</field>
-        <field name="arch" type="xml">
-            <form string="Petty Cash Float">
-                <sheet>
-                    <div class="alert alert-warning" role="alert"
-                         invisible="not is_low">
-                        <strong>Low Balance:</strong>
-                        Current balance is below the alert threshold.
-                        Please arrange a top-up.
-                    </div>
-
-                    <group>
-                        <group string="Configuration">
-                            <field name="company_id" readonly="1"/>
-                            <field name="journal_id"/>
-                            <field name="low_balance_alert" string="Alert Below (KES)"/>
-                        </group>
-                        <group string="Balance">
-                            <field name="current_balance" readonly="1"
-                                   string="Current Balance (KES)"
-                                   decoration-danger="is_low"
-                                   decoration-success="not is_low"/>
-                            <field name="is_low" invisible="1"/>
-                        </group>
-                    </group>
-
-                    <separator string="Transactions"/>
-
-                    <field name="disbursement_ids"
-                           context="{'default_float_id': id}">
-                        <list string="Transactions" editable="bottom"
-                              decoration-muted="state == 'draft'"
-                              decoration-info="is_topup">
-                            <field name="date"/>
-                            <field name="is_topup" string="Top-up"/>
-                            <field name="shift_id" optional="show"/>
-                            <field name="attendant_id" optional="show"/>
-                            <field name="description"/>
-                            <field name="amount" string="Amount (KES)" sum="Net"/>
-                            <field name="account_id" optional="show"
-                                   invisible="is_topup"/>
-                            <field name="state" widget="badge"
-                                   decoration-muted="state == 'draft'"
-                                   decoration-success="state == 'posted'"/>
-                        </list>
-                    </field>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="action_fms_petty_cash_float" model="ir.actions.act_window">
-        <field name="name">Petty Cash</field>
-        <field name="res_model">fms.petty.cash.float</field>
-        <field name="view_mode">form</field>
-        <field name="target">inline</field>
-        <field name="context">{'form_view_initial_mode': 'edit'}</field>
-    </record>
-
-    <!-- Disbursements standalone list (for all-shifts view) -->
-    <record id="view_fms_petty_cash_disbursement_list" model="ir.ui.view">
-        <field name="name">fms.petty.cash.disbursement.list</field>
-        <field name="model">fms.petty.cash.disbursement</field>
-        <field name="arch" type="xml">
-            <list string="Petty Cash Transactions"
-                  decoration-muted="state == 'draft'"
-                  decoration-info="is_topup">
-                <field name="date"/>
-                <field name="is_topup" string="Top-up"/>
-                <field name="shift_id" optional="show"/>
-                <field name="attendant_id"/>
-                <field name="description"/>
-                <field name="amount" string="Amount (KES)" sum="Total"/>
-                <field name="account_id" optional="show"/>
-                <field name="state" widget="badge"
-                       decoration-muted="state == 'draft'"
-                       decoration-success="state == 'posted'"/>
-                <button name="action_post" string="Post" type="object"
-                        invisible="state != 'draft'"/>
-            </list>
-        </field>
-    </record>
-
+    <!-- Petty Cash Transactions = outbound cash payments (Odoo core account.payment) -->
     <record id="action_fms_petty_cash_disbursements" model="ir.actions.act_window">
         <field name="name">Petty Cash Transactions</field>
-        <field name="res_model">fms.petty.cash.disbursement</field>
+        <field name="res_model">account.payment</field>
         <field name="view_mode">list,form</field>
+        <field name="domain">[('journal_id.type', '=', 'cash'), ('payment_type', '=', 'outbound')]</field>
+        <field name="context">{'default_payment_type': 'outbound', 'default_partner_type': 'supplier'}</field>
     </record>
-
-    <!-- Menus under Configuration -->
-    <menuitem id="menu_fms_petty_cash"
-              name="Petty Cash"
-              parent="fms.menu_fms_config"
-              action="action_fms_petty_cash_float"
-              groups="fms.group_fms_accountant"
-              sequence="30"/>
 
     <menuitem id="menu_fms_petty_cash_transactions"
               name="Petty Cash Transactions"
