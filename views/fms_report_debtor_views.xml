@@ -127,7 +127,7 @@
 
     <menuitem id="menu_fms_report_debtors"
               name="Debtors Aging &amp; Credit Exposure"
-              parent="fms.menu_fms_reporting"
+              parent="fms.menu_fms_section_cash_credit"
               action="action_fms_debtor_aging"
               groups="fms.group_fms_supervisor"
               sequence="30"/>
