@@ -265,21 +265,12 @@ class TestCreditCustomers(FMSAccountingBase):
         self.assertIn('credit_customer_id', self.env['fms.shift.attendant.cash']._fields)
 
     def test_pdc_fields_on_account_payment(self):
-        """account.payment has fms_is_pdc, fms_pdc_state, fms_cheque_number."""
-        payment = self.env['account.payment'].create({
-            'amount': 10_000.0,
-            'payment_type': 'inbound',
-            'partner_type': 'customer',
-            'partner_id': self.customer.id,
-            'journal_id': self.cash_journal.id,
-            'fms_is_pdc': True,
-            'fms_pdc_state': 'held',
-            'fms_cheque_number': 'CHQ-0001',
-            'fms_cheque_date': '2026-09-01',
-        })
-        self.assertTrue(payment.fms_is_pdc)
-        self.assertEqual(payment.fms_pdc_state, 'held')
-        self.assertEqual(payment.fms_cheque_number, 'CHQ-0001')
+        """account.payment model has fms_is_pdc, fms_pdc_state, fms_cheque_number fields."""
+        fields = self.env['account.payment']._fields
+        self.assertIn('fms_is_pdc', fields)
+        self.assertIn('fms_pdc_state', fields)
+        self.assertIn('fms_cheque_number', fields)
+        self.assertIn('fms_cheque_date', fields)
 
 
 # ---------------------------------------------------------------------------

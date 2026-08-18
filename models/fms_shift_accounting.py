@@ -119,6 +119,17 @@ class FMSShiftAccountingExt(models.Model):
         return move
 
 
+class FMSAttendantCashAccountingExt(models.Model):
+    """Add credit customer link to attendant cash line."""
+    _inherit = 'fms.shift.attendant.cash'
+
+    credit_customer_id = fields.Many2one(
+        'res.partner', 'Credit Customer',
+        domain=[('fms_is_fleet_customer', '=', True)],
+        help="The fleet/credit account customer for credit sales on this line.",
+    )
+
+
 class FMSFuelDeliveryShiftLink(models.Model):
     _inherit = 'fms.fuel.delivery'
 
