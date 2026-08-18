@@ -31,11 +31,6 @@
         <field name="arch" type="xml">
             <xpath expr="//page[@name='dips']" position="after">
                 <page string="Cash Drops" name="cash_drops">
-                    <p class="text-muted">
-                        Record each cash drop as it occurs, or a single lump sum at shift end.
-                        The total per attendant flows automatically into the
-                        <strong>Attendant Cash</strong> reconciliation.
-                    </p>
                     <field name="cash_drop_ids"
                            readonly="state == 'closed'"
                            context="{'default_shift_id': id}">
