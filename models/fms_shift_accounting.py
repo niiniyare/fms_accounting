@@ -156,6 +156,13 @@ class FMSAccountMoveExtension(models.Model):
         related='fms_shift_id.company_id', store=True, readonly=True,
     )
 
+    @api.onchange('fms_vehicle_id')
+    def _onchange_fms_vehicle_id(self):
+        """Auto-populate vehicle_reg from selected vehicle."""
+        for move in self:
+            if move.fms_vehicle_id:
+                move.fms_vehicle_reg = move.fms_vehicle_id.license_plate or ''
+
 
 class FMSSitePreferencesAccountingExt(models.Model):
     _inherit = 'fms.site.preferences'

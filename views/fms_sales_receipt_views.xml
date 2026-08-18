@@ -81,6 +81,15 @@
                         <group string="Transaction">
                             <field name="partner_id"     string="Customer"
                                    readonly="state != 'draft'"/>
+                            <field name="fms_vehicle_id" string="Vehicle"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="fms_driver_id"  string="Driver"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="fms_vehicle_reg" string="Vehicle Reg"
+                                   placeholder="Auto-filled from vehicle"
+                                   readonly="state != 'draft'"/>
                             <field name="journal_id"     string="Payment Method"
                                    readonly="state != 'draft'"
                                    domain="[('type', 'in', ('cash', 'bank'))]"
@@ -101,9 +110,12 @@
                     <field name="invoice_line_ids" readonly="state != 'draft'">
                         <list editable="bottom">
                             <field name="product_id"      string="Product"      required="1"/>
+                            <field name="fms_nozzle_id"   string="Nozzle"       optional="show"
+                                   domain="[('product_id', '=', product_id)]"
+                                   options="{'no_create': True}"/>
                             <field name="fms_line_amount" string="Amount"/>
-                            <field name="price_unit"      string="Price / Litre"/>
-                            <field name="quantity"        string="Litres"       optional="show"/>
+                            <field name="price_unit"      string="Unit Price"/>
+                            <field name="quantity"        string="Qty / Litres" optional="show"/>
                             <field name="tax_ids"         string="Tax"          optional="show"/>
                             <field name="price_subtotal"  string="Subtotal"     readonly="1"/>
                         </list>

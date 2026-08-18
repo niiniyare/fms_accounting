@@ -222,11 +222,36 @@ class FMSSalesReceiptMove(models.Model):
 class FMSSalesReceiptLine(models.Model):
     _inherit = 'account.move.line'
 
+    fms_nozzle_id = fields.Many2one(
+        'fms.pump.nozzle',
+        string='Nozzle',
+        index=True,
+        ondelete='set null',
+        help="Pump nozzle that dispensed this fuel line. Required for fuel products "
+             "to enable per-nozzle meter vs sales reconciliation.",
+    )
+
     fms_line_amount = fields.Float(
         'Amount',
         digits=(16, 2),
         help="Enter the sale amount; litres are back-calculated from the unit price.",
     )
+
+    @api.onchange('product_id')
+    def _onchange_product_fms_nozzle_warning(self):
+        """Warn if fuel product has no nozzle — not a hard block (cover allowed)."""
+        for line in self:
+            if (line.product_id and line.product_id.fms_is_fuel
+                    and not line.fms_nozzle_id
+                    and line.move_id.move_type in ('out_receipt', 'out_invoice')):
+                return {
+                    'warning': {
+                        'title': 'Nozzle Required',
+                        'message': f'{line.product_id.name} is a fuel product. '
+                                   'Select the nozzle that dispensed this fuel to enable '
+                                   'meter reconciliation.',
+                    }
+                }
 
     @api.onchange('fms_line_amount', 'price_unit')
     def _onchange_fms_line_amount(self):
