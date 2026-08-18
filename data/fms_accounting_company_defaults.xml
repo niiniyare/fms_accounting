@@ -3,12 +3,9 @@
     fms_accounting_company_defaults.xml — accounting-module defaults.
     Loads ONLY when fms_accounting (which depends on account) is installed.
 
-    Sets fiscal country and creates Kenya VAT tax group, GL accounts,
-    Forecourt Sales journal, and taxes.
-
-    Currency: does NOT force currency_id on the company. The company's
-    existing active currency is used as-is. If you need KES, set it
-    manually via Settings > Companies, or use a post-install hook.
+    GL accounts and journal are created via _ensure_fms_gl_setup() which
+    uses find-or-create by code — safe for both fresh installs and existing
+    databases that already have these accounts from a prior fms module version.
 -->
 <odoo>
     <data noupdate="1">
@@ -27,49 +24,12 @@
 
     </data>
 
-    <data noupdate="1">
-
-        <!-- ================================================================
-             FMS GL Accounts (noupdate=1 — created once, hand-editable after)
-        ================================================================ -->
-
-        <!-- 191600 — FMS Cash Clearing (asset_current)
-             Debited on shift close for total meter cash sales.
-             Cleared when cash is banked / reconciled with bank statement.
-             MUST be asset, NOT revenue. -->
-        <record id="account_fms_cash_clearing" model="account.account">
-            <field name="code">191600</field>
-            <field name="name">FMS Cash Clearing</field>
-            <field name="account_type">asset_current</field>
-            <field name="company_ids" eval="[(4, ref('base.main_company'))]"/>
-            <field name="reconcile" eval="True"/>
-        </record>
-
-        <!-- 591000 — Fuel Cost of Sales (expense_direct_cost) -->
-        <record id="account_fuel_cogs" model="account.account">
-            <field name="code">591000</field>
-            <field name="name">Fuel Cost of Sales</field>
-            <field name="account_type">expense_direct_cost</field>
-            <field name="company_ids" eval="[(4, ref('base.main_company'))]"/>
-        </record>
-
-        <!-- Forecourt Sales Journal (type=sale) — used for all shift GL entries -->
-        <record id="journal_forecourt_sales" model="account.journal">
-            <field name="name">Forecourt Sales</field>
-            <field name="code">FCST</field>
-            <field name="type">sale</field>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-    </data>
-
-    <!-- Site Preferences wiring — noupdate="0" so re-install patches existing record -->
+    <!-- GL accounts, journal, site preferences wiring.
+         _ensure_fms_gl_setup() does find-or-create by account code,
+         so re-running never creates duplicates. noupdate="0" so it
+         runs on every upgrade and keeps prefs wired correctly. -->
     <data noupdate="0">
-        <function model="fms.site.preferences" name="_fms_configure_defaults">
-            <value eval="ref('account_fms_cash_clearing')"/>
-            <value eval="ref('account_fuel_cogs')"/>
-            <value eval="ref('journal_forecourt_sales')"/>
-        </function>
+        <function model="fms.site.preferences" name="_ensure_fms_gl_setup"/>
     </data>
 
     <!-- Taxes — noupdate="0" so re-install updates them cleanly -->

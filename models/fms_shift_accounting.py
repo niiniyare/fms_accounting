@@ -155,3 +155,55 @@ class FMSAccountMoveExtension(models.Model):
         'res.company', 'Station',
         related='fms_shift_id.company_id', store=True, readonly=True,
     )
+
+
+class FMSSitePreferencesAccountingExt(models.Model):
+    _inherit = 'fms.site.preferences'
+
+    @api.model
+    def _ensure_fms_gl_setup(self):
+        """Find-or-create FMS GL accounts and journal, then wire into site preferences.
+
+        Safe for both fresh install (creates records) and existing DBs (finds by code).
+        Called from fms_accounting_company_defaults.xml instead of raw <record> blocks.
+        """
+        company = self.env.company
+        Account = self.env['account.account']
+        Journal = self.env['account.journal']
+
+        def _find_or_create_account(code, name, account_type, reconcile=False):
+            acc = Account.search([
+                ('code', '=', code),
+                ('company_ids', 'in', company.id),
+            ], limit=1)
+            if not acc:
+                acc = Account.create({
+                    'code': code,
+                    'name': name,
+                    'account_type': account_type,
+                    'company_ids': [(4, company.id)],
+                    'reconcile': reconcile,
+                })
+            return acc
+
+        def _find_or_create_journal(code, name, journal_type):
+            jnl = Journal.search([
+                ('code', '=', code),
+                ('company_id', '=', company.id),
+            ], limit=1)
+            if not jnl:
+                jnl = Journal.create({
+                    'code': code,
+                    'name': name,
+                    'type': journal_type,
+                    'company_id': company.id,
+                })
+            return jnl
+
+        clearing = _find_or_create_account(
+            '191600', 'FMS Cash Clearing', 'asset_current', reconcile=True)
+        cogs = _find_or_create_account(
+            '591000', 'Fuel Cost of Sales', 'expense_direct_cost')
+        journal = _find_or_create_journal('FCST', 'Forecourt Sales', 'sale')
+
+        self._fms_configure_defaults(clearing.id, cogs.id, journal.id)
