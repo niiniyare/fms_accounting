@@ -8,6 +8,7 @@
     "data": [
         # Security
         "security/ir_model_access.xml",
+        "security/ir_rule.xml",
 
         # Data
         "data/fms_accounting_data.xml",
@@ -21,6 +22,7 @@
         "views/fms_fuel_delivery_views.xml",
         "views/fms_petty_cash_views.xml",
         "views/fms_pdc_views.xml",
+        "views/fms_payment_views.xml",
         "views/fms_report_debtor_views.xml",
         "views/fms_receipt_reconciliation_views.xml",
         "views/fms_accounting_menus.xml",  # must be last — references actions from all files above

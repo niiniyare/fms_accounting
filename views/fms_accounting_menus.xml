@@ -70,6 +70,42 @@
               groups="fms.group_fms_supervisor"
               sequence="65"/>
 
+    <!-- ── Cash movement shortcuts (FIN-011) ── -->
+    <menuitem id="menu_fms_customer_receipts"
+              name="Customer Receipts"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_customer_receipts"
+              groups="fms.group_fms_supervisor"
+              sequence="70"/>
+
+    <menuitem id="menu_fms_vendor_payments"
+              name="Vendor Payments"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_vendor_payments"
+              groups="fms.group_fms_supervisor"
+              sequence="75"/>
+
+    <menuitem id="menu_fms_cash_floats"
+              name="Cash Floats"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_cash_floats"
+              groups="fms.group_fms_supervisor"
+              sequence="80"/>
+
+    <menuitem id="menu_fms_cash_drops"
+              name="Cash Drops / Pickups"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_cash_drops"
+              groups="fms.group_fms_supervisor"
+              sequence="85"/>
+
+    <menuitem id="menu_fms_shift_expenses"
+              name="Shift Expenses"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_shift_expenses"
+              groups="fms.group_fms_supervisor"
+              sequence="90"/>
+
     <!-- ══════════════════════════════════════════════════
          REPORTING — financial reports (accountant only)
     ══════════════════════════════════════════════════ -->

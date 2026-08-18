@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FIN-012: account.payment record rules for FMS shift-linked payments.
+     Must live in fms_accounting (loads after fms) because fms_shift_id
+     is added to account.payment by fms_accounting/models/fms_payment_extension.py. -->
+<odoo>
+
+    <!-- Supervisors see all payments from their own company's shifts. -->
+    <record id="rule_fms_payment_supervisor" model="ir.rule">
+        <field name="name">FMS Payment: supervisor sees own company shift payments</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_supervisor'))]"/>
+        <field name="domain_force">
+            ['|',
+             ('fms_shift_id', '=', False),
+             ('fms_station_id', 'in', company_ids)]
+        </field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Attendants see only their own payments on shifts at their station. -->
+    <record id="rule_fms_payment_attendant" model="ir.rule">
+        <field name="name">FMS Payment: attendant sees own shift payments only</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_attendant'))]"/>
+        <field name="domain_force">
+            ['|',
+             ('fms_shift_id', '=', False),
+             '&amp;',
+             ('fms_station_id', 'in', company_ids),
+             ('fms_attendant_id.user_id', '=', user.id)]
+        </field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+</odoo>
