@@ -62,17 +62,9 @@ class ResPartnerCreditLimit(models.Model):
                 partner.fms_exposure_pct = 0.0
 
 
-class AccountMoveVehicle(models.Model):
+class AccountMoveCreditLimit(models.Model):
+    """Credit limit bypass fields on account.move. Vehicle/driver/shift fields live in fms_shift_accounting.py."""
     _inherit = 'account.move'
-
-    fms_vehicle = fields.Char(
-        'Vehicle / Plate',
-        help="Vehicle registration or plate number for fleet credit invoices.",
-    )
-    fms_driver = fields.Many2one(
-        'hr.employee', 'Driver (Employee)',
-        help="Driver or authorised person for this credit transaction (legacy: employee link).",
-    )
 
     # Credit limit bypass — only a supervisor should set this
     fms_limit_bypass       = fields.Boolean(

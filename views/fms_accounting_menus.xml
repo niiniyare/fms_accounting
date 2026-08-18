@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- fms_accounting leaf menus — loaded last in fms_accounting manifest.
-     Structural parents (menu_fms_sales, menu_fms_operations, menu_fms_inventory,
-     menu_fms_reconciliation, menu_fms_reporting, menu_fms_config)
-     are defined in fms/views/fms_menu_structure.xml -->
+<!-- fms_accounting leaf menus.
+     Structural parents defined in fms/views/fms_menu_structure.xml -->
 <odoo>
 
     <!-- ════════════════════════════════════════
@@ -19,7 +17,7 @@
     <menuitem id="menu_fms_customer_invoices"
               name="Customer Invoices"
               parent="fms.menu_fms_sales"
-              action="action_fms_customer_invoices"
+              action="action_fms_credit_customer"
               groups="fms.group_fms_supervisor"
               sequence="20"/>
 
@@ -30,26 +28,30 @@
               groups="fms.group_fms_supervisor"
               sequence="30"/>
 
-    <menuitem id="menu_fms_credit_customers"
-              name="Credit Customers"
-              parent="fms.menu_fms_sales"
-              action="action_fms_credit_customer"
-              groups="fms.group_fms_supervisor"
-              sequence="40"/>
+    <!-- ════════════════════════════════════════
+         CASH section (float, drops, expenses, vendor payments)
+    ════════════════════════════════════════ -->
 
-    <menuitem id="menu_fms_fleet_vehicles"
-              name="Fleet Vehicles"
-              parent="fms.menu_fms_sales"
-              action="action_fms_vehicle"
+    <menuitem id="menu_fms_cash_movements"
+              name="Cash Movements"
+              parent="fms.menu_fms_cash"
+              action="action_fms_cash_movements"
               groups="fms.group_fms_supervisor"
-              sequence="50"/>
+              sequence="10"/>
 
-    <menuitem id="menu_fms_drivers"
-              name="Drivers"
-              parent="fms.menu_fms_sales"
-              action="action_fms_driver"
+    <menuitem id="menu_fms_shift_expenses"
+              name="Expenses"
+              parent="fms.menu_fms_cash"
+              action="action_fms_shift_expenses"
               groups="fms.group_fms_supervisor"
-              sequence="60"/>
+              sequence="20"/>
+
+    <menuitem id="menu_fms_vendor_payments"
+              name="Vendor Payments"
+              parent="fms.menu_fms_cash"
+              action="action_fms_vendor_payments"
+              groups="fms.group_fms_supervisor"
+              sequence="30"/>
 
     <!-- ════════════════════════════════════════
          OPERATIONS — accounting additions
@@ -61,27 +63,6 @@
               action="action_fms_fuel_delivery"
               groups="fms.group_fms_supervisor"
               sequence="20"/>
-
-    <menuitem id="menu_fms_cash_movements"
-              name="Cash Movements"
-              parent="fms.menu_fms_operations"
-              action="action_fms_cash_movements"
-              groups="fms.group_fms_supervisor"
-              sequence="60"/>
-
-    <menuitem id="menu_fms_vendor_payments"
-              name="Vendor Payments"
-              parent="fms.menu_fms_operations"
-              action="action_fms_vendor_payments"
-              groups="fms.group_fms_supervisor"
-              sequence="65"/>
-
-    <menuitem id="menu_fms_shift_expenses"
-              name="Shift Expenses"
-              parent="fms.menu_fms_operations"
-              action="action_fms_shift_expenses"
-              groups="fms.group_fms_supervisor"
-              sequence="70"/>
 
     <!-- ════════════════════════════════════════
          INVENTORY — shortcuts to native Odoo
@@ -105,6 +86,31 @@
               name="Stock Adjustments"
               parent="fms.menu_fms_inventory"
               action="action_fms_stock_adjustments"
+              groups="fms.group_fms_supervisor"
+              sequence="30"/>
+
+    <!-- ════════════════════════════════════════
+         CUSTOMERS & FLEET
+    ════════════════════════════════════════ -->
+
+    <menuitem id="menu_fms_fleet_customers"
+              name="Customers"
+              parent="fms.menu_fms_customers_fleet"
+              action="action_fms_fleet_customers"
+              groups="fms.group_fms_supervisor"
+              sequence="10"/>
+
+    <menuitem id="menu_fms_fleet_vehicles"
+              name="Vehicles"
+              parent="fms.menu_fms_customers_fleet"
+              action="action_fms_vehicle"
+              groups="fms.group_fms_supervisor"
+              sequence="20"/>
+
+    <menuitem id="menu_fms_drivers"
+              name="Drivers"
+              parent="fms.menu_fms_customers_fleet"
+              action="action_fms_driver"
               groups="fms.group_fms_supervisor"
               sequence="30"/>
 
@@ -160,5 +166,12 @@
               action="action_fms_petty_cash_disbursements"
               groups="fms.group_fms_supervisor"
               sequence="160"/>
+
+    <menuitem id="menu_fms_report_attendant_cash"
+              name="Attendant Cash Breakdown"
+              parent="fms.menu_fms_reporting"
+              action="fms.action_fms_attendant_cash_breakdown"
+              groups="fms.group_fms_supervisor"
+              sequence="80"/>
 
 </odoo>

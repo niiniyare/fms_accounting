@@ -11,10 +11,16 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='invoice_date']" position="after">
-                <field name="fms_vehicle" string="Vehicle / Plate"
+                <field name="fms_shift_id" string="FMS Shift"
                        invisible="move_type not in ('out_invoice','out_refund')"/>
-                <field name="fms_driver" string="Driver"
+                <field name="fms_attendant_id" string="Attendant"
                        invisible="move_type not in ('out_invoice','out_refund')"/>
+                <field name="fms_vehicle_id" string="Vehicle"
+                       invisible="move_type not in ('out_invoice','out_refund')"/>
+                <field name="fms_driver_id" string="Driver"
+                       invisible="move_type not in ('out_invoice','out_refund')"/>
+                <field name="fms_odometer" string="Odometer (km)"
+                       invisible="move_type not in ('out_invoice','out_refund') or not fms_vehicle_id"/>
             </xpath>
             <!-- Credit limit override section — visible only when over limit -->
             <xpath expr="//field[@name='narration']" position="before">
@@ -63,11 +69,20 @@
     ================================================================ -->
 
     <record id="action_fms_credit_customer" model="ir.actions.act_window">
-        <field name="name">Credit Customers</field>
+        <field name="name">Customer Invoices</field>
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice')]</field>
-        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="context">{'default_move_type': 'out_invoice', 'fms_invoice_context': True}</field>
+    </record>
+
+    <!-- Separate action for opening the Customers list (fleet customers) -->
+    <record id="action_fms_fleet_customers" model="ir.actions.act_window">
+        <field name="name">Fleet Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('fms_is_fleet_customer', '=', True), ('is_company', '=', True)]</field>
+        <field name="context">{'default_fms_is_fleet_customer': True}</field>
     </record>
 
     <!-- ================================================================

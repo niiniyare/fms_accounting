@@ -166,13 +166,98 @@ class FMSAccountMoveExtension(models.Model):
         'res.company', 'Station',
         related='fms_shift_id.company_id', store=True, readonly=True,
     )
+    fms_odometer = fields.Float(
+        'Odometer (km)',
+        digits=(10, 1),
+        help="Vehicle odometer reading at the time of fuelling.",
+    )
+
+    @api.model
+    def default_get(self, fields_list):
+        """Auto-populate FMS shift when invoice is created from the Forecourt menu."""
+        vals = super().default_get(fields_list)
+        if self.env.context.get('fms_invoice_context') and vals.get('move_type') == 'out_invoice':
+            shift = self.env['fms.shift'].search([
+                ('company_id', '=', self.env.company.id),
+                ('state', 'in', ['open', 'closing']),
+            ], limit=1, order='date desc, id desc')
+            if not shift:
+                # Will be blocked at create() time — no default to set
+                pass
+            else:
+                vals['fms_shift_id'] = shift.id
+                if 'invoice_date' not in vals or not vals.get('invoice_date'):
+                    vals['invoice_date'] = shift.date
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Block FMS-context invoice creation when no active shift exists."""
+        if self.env.context.get('fms_invoice_context'):
+            for vals in vals_list:
+                if vals.get('move_type') == 'out_invoice' and not vals.get('fms_shift_id'):
+                    shift = self.env['fms.shift'].search([
+                        ('company_id', '=', self.env.company.id),
+                        ('state', 'in', ['open', 'closing']),
+                    ], limit=1)
+                    if not shift:
+                        raise ValidationError(
+                            "No active shift — cannot create a customer invoice.\n\n"
+                            "Open a shift first (Forecourt → Operations → Shifts → Open Shift), "
+                            "then create the invoice."
+                        )
+                    vals['fms_shift_id'] = shift.id
+                    if not vals.get('invoice_date'):
+                        vals['invoice_date'] = shift.date
+        return super().create(vals_list)
 
     @api.onchange('fms_vehicle_id')
     def _onchange_fms_vehicle_id(self):
-        """Auto-populate vehicle_reg from selected vehicle."""
+        """Auto-populate customer and driver from vehicle."""
         for move in self:
-            if move.fms_vehicle_id:
-                move.fms_vehicle_reg = move.fms_vehicle_id.license_plate or ''
+            vehicle = move.fms_vehicle_id
+            if not vehicle:
+                continue
+            if vehicle.partner_id and not move.partner_id:
+                move.partner_id = vehicle.partner_id
+            if vehicle.driver_ids and len(vehicle.driver_ids) == 1 and not move.fms_driver_id:
+                move.fms_driver_id = vehicle.driver_ids[0]
+
+    @api.onchange('fms_driver_id')
+    def _onchange_fms_driver_id(self):
+        """Auto-populate customer and vehicle from driver."""
+        for move in self:
+            driver = move.fms_driver_id
+            if not driver:
+                continue
+            if driver.partner_id and not move.partner_id:
+                move.partner_id = driver.partner_id
+            if driver.vehicle_ids and len(driver.vehicle_ids) == 1 and not move.fms_vehicle_id:
+                move.fms_vehicle_id = driver.vehicle_ids[0]
+
+    @api.constrains('fms_vehicle_id', 'partner_id')
+    def _check_vehicle_customer_match(self):
+        for move in self:
+            if (move.fms_vehicle_id and move.fms_vehicle_id.partner_id
+                    and move.partner_id
+                    and move.partner_id != move.fms_vehicle_id.partner_id):
+                raise ValidationError(
+                    f"Vehicle '{move.fms_vehicle_id.license_plate}' belongs to "
+                    f"'{move.fms_vehicle_id.partner_id.name}', not '{move.partner_id.name}'. "
+                    "Select the correct customer or vehicle."
+                )
+
+    @api.constrains('fms_driver_id', 'partner_id')
+    def _check_driver_customer_match(self):
+        for move in self:
+            if (move.fms_driver_id and move.fms_driver_id.partner_id
+                    and move.partner_id
+                    and move.partner_id != move.fms_driver_id.partner_id):
+                raise ValidationError(
+                    f"Driver '{move.fms_driver_id.name}' is linked to "
+                    f"'{move.fms_driver_id.partner_id.name}', not '{move.partner_id.name}'. "
+                    "Select the correct customer or driver."
+                )
 
 
 class FMSSitePreferencesAccountingExt(models.Model):

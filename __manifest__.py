@@ -41,5 +41,6 @@
     "auto_install": False,
     "test": [
         "tests/test_fms_accounting.py",
+        "tests/test_native_integration.py",
     ],
 }

@@ -73,4 +73,29 @@
         <field name="perm_unlink" eval="0"/>
     </record>
 
+
+    <!-- fms.vehicle — company isolation -->
+    <record id="rule_fms_vehicle_supervisor" model="ir.rule">
+        <field name="name">FMS Vehicle: supervisor sees own company</field>
+        <field name="model_id" ref="fms_accounting.model_fms_vehicle"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_supervisor'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- fms.driver — company isolation -->
+    <record id="rule_fms_driver_supervisor" model="ir.rule">
+        <field name="name">FMS Driver: supervisor sees own company</field>
+        <field name="model_id" ref="fms_accounting.model_fms_driver"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_supervisor'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
 </odoo>
