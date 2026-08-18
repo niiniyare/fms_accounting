@@ -1,3 +1,4 @@
+from . import fms_cash_drop
 from . import fms_vehicle
 from . import fms_driver
 from . import fms_payment_extension

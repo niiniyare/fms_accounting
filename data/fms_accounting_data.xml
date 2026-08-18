@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Cash drop reference sequence -->
+    <record id="seq_fms_cash_drop" model="ir.sequence">
+        <field name="name">FMS Cash Drop</field>
+        <field name="code">fms.cash.drop</field>
+        <field name="prefix">DROP/%(year)s/%(month)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
     <!-- Delivery reference sequence -->
     <record id="seq_fms_fuel_delivery" model="ir.sequence">
         <field name="name">FMS Fuel Delivery</field>

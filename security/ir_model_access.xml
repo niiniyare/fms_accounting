@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- fms.cash.drop -->
+    <record id="access_fms_cash_drop_attendant" model="ir.model.access">
+        <field name="name">fms.cash.drop attendant</field>
+        <field name="model_id" ref="model_fms_cash_drop"/>
+        <field name="group_id" ref="fms.group_fms_attendant"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="access_fms_cash_drop_supervisor" model="ir.model.access">
+        <field name="name">fms.cash.drop supervisor</field>
+        <field name="model_id" ref="model_fms_cash_drop"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- fms.cash.declaration -->
+    <record id="access_fms_cash_declaration_attendant" model="ir.model.access">
+        <field name="name">fms.cash.declaration attendant</field>
+        <field name="model_id" ref="model_fms_cash_declaration"/>
+        <field name="group_id" ref="fms.group_fms_attendant"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="access_fms_cash_declaration_supervisor" model="ir.model.access">
+        <field name="name">fms.cash.declaration supervisor</field>
+        <field name="model_id" ref="model_fms_cash_declaration"/>
+        <field name="group_id" ref="fms.group_fms_supervisor"/>
+        <field name="perm_read" eval="1"/><field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/><field name="perm_unlink" eval="1"/>
+    </record>
+
     <!-- fms.fuel.delivery -->
     <record id="access_fms_fuel_delivery_supervisor" model="ir.model.access">
         <field name="name">fms.fuel.delivery supervisor</field>

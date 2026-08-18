@@ -1,9 +1,11 @@
 """
 fms_shift_accounting.py — Extends fms.shift for accounting features.
 
-1. fms.shift gets delivery_ids One2many field.
+1. fms.shift gets delivery_ids, cash_drop_ids, cash_declaration_ids One2many fields.
 2. _post_sales_journal is extended to split revenue lines into net + tax
    using Odoo's native account.tax.compute_all().
+3. Shift close gate: all cash declarations must be resolved before close.
+4. fms.site.preferences gets shift_variance_account_id.
 """
 
 from odoo import models, fields, api
@@ -20,6 +22,39 @@ class FMSShiftAccountingExt(models.Model):
         'fms.fuel.delivery', 'shift_id', 'Fuel Deliveries',
         help="Tanker deliveries that arrived during this shift.",
     )
+    cash_drop_ids = fields.One2many(
+        'fms.cash.drop', 'shift_id', 'Cash Drops',
+    )
+    cash_declaration_ids = fields.One2many(
+        'fms.cash.declaration', 'shift_id', 'Cash Declarations',
+    )
+
+    def _gate_check_cash_declarations(self):
+        """
+        Gate: all cash declarations must be resolved before shift close.
+        Called as part of the shift close gate sequence.
+        """
+        self.ensure_one()
+        unresolved = self.cash_declaration_ids.filtered(
+            lambda d: d.state not in ('resolved',)
+        )
+        if unresolved:
+            names = ', '.join(d.attendant_id.name for d in unresolved)
+            raise ValidationError(
+                f"GATE (Cash Declarations) — unresolved declarations for: {names}.\n"
+                "Manager must post variance resolution before shift can close."
+            )
+
+    def action_close_shift(self):
+        """Extend shift close: generate receipts + run declaration gate."""
+        self.ensure_one()
+        # Generate out_receipt for each declared declaration before close
+        for decl in self.cash_declaration_ids.filtered(
+            lambda d: d.state == 'declared' and not d.receipt_move_id
+        ):
+            decl.action_generate_receipt()
+        self._gate_check_cash_declarations()
+        return super().action_close_shift()
 
     def _post_sales_journal(self):
         """
@@ -263,6 +298,12 @@ class FMSAccountMoveExtension(models.Model):
 
 class FMSSitePreferencesAccountingExt(models.Model):
     _inherit = 'fms.site.preferences'
+
+    shift_variance_account_id = fields.Many2one(
+        'account.account', 'Shift Variance Account',
+        domain=[('account_type', 'in', ('income_other', 'expense'))],
+        help="Account credited on cash-over variances and debited on write-off adjustments.",
+    )
 
     @api.model
     def _ensure_fms_gl_setup(self):
