@@ -20,7 +20,7 @@
                 <field name="fms_driver_id" string="Driver"
                        invisible="move_type not in ('out_invoice','out_refund')"/>
                 <field name="fms_odometer" string="Odometer (km)"
-                       invisible="move_type not in ('out_invoice','out_refund') or not fms_vehicle_id"/>
+                       invisible="move_type not in ('out_invoice','out_refund')"/>
             </xpath>
             <!-- Credit limit override section — visible only when over limit -->
             <xpath expr="//field[@name='narration']" position="before">
