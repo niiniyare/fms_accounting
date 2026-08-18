@@ -4,7 +4,20 @@
     "category": "Accounting",
     "summary": "Forecourt accounting: credit customers, fuel deliveries, petty cash, VAT",
     "author": "Anika Global Limited",
-    "depends": ["fms", "account", "stock", "purchase", "mail"],
+    "depends": [
+        "fms",
+        "account",
+        "stock",
+        "purchase",
+        "mail",
+        # OCA financial reporting stack
+        "date_range",
+        "report_xlsx",
+        "account_financial_report",
+        "mis_builder",
+        "mis_template_financial_report",
+        "mis_builder_cash_flow",
+    ],
     "data": [
         # Security
         "security/ir_model_access.xml",
