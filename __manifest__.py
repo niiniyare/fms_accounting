@@ -50,6 +50,9 @@
         "reports/fms_delivery_register_report.xml",
         "reports/fms_vat_summary_report.xml",
     ],
+    "demo": [
+        "demo/fms_accounting_demo.xml",
+    ],
     "installable": True,
     "application": False,
     "auto_install": False,

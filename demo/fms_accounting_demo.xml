@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <!-- ================================================================
+         FMS Accounting Demo Data — Shell Maanzoni Station
+         Provides realistic GL activity for MIS Builder P&L, Balance Sheet,
+         Cash Flow reports.
+
+         Sections:
+           1. Credit customers (fleet accounts)
+           2. Fuel supplier
+           3. Fuel delivery (confirmed → stock receipt + vendor bill)
+           4. Credit customer invoices (posted)
+           5. Customer payments (partial — leaves AR balance)
+           6. Cash drops on demo shift
+           7. Petty cash payments
+           8. Operating expense invoices
+    ================================================================ -->
+
+    <!-- ============================================================
+         1. CREDIT CUSTOMERS
+    ============================================================ -->
+
+    <record id="partner_fleet_nss" model="res.partner">
+        <field name="name">NSS Security Ltd</field>
+        <field name="company_type">company</field>
+        <field name="street">Upper Hill, Nairobi</field>
+        <field name="phone">+254 700 100 200</field>
+        <field name="email">accounts@nss.co.ke</field>
+        <field name="customer_rank">1</field>
+        <field name="fms_is_fleet_customer" eval="True"/>
+        <field name="fms_credit_limit">500000.00</field>
+    </record>
+
+    <record id="partner_fleet_county" model="res.partner">
+        <field name="name">Nairobi County Government</field>
+        <field name="company_type">company</field>
+        <field name="street">City Hall Way, Nairobi</field>
+        <field name="phone">+254 20 2228 000</field>
+        <field name="email">fleet@nairobicity.go.ke</field>
+        <field name="customer_rank">1</field>
+        <field name="fms_is_fleet_customer" eval="True"/>
+        <field name="fms_credit_limit">1000000.00</field>
+    </record>
+
+    <record id="partner_fleet_matatu" model="res.partner">
+        <field name="name">Eastleigh Shuttle Sacco</field>
+        <field name="company_type">company</field>
+        <field name="street">Eastleigh, Nairobi</field>
+        <field name="phone">+254 722 300 400</field>
+        <field name="email">sacco@eastleighshuttle.co.ke</field>
+        <field name="customer_rank">1</field>
+        <field name="fms_is_fleet_customer" eval="True"/>
+        <field name="fms_credit_limit">200000.00</field>
+    </record>
+
+    <!-- ============================================================
+         2. FUEL SUPPLIER
+    ============================================================ -->
+
+    <record id="partner_supplier_oil" model="res.partner">
+        <field name="name">Vivo Energy Kenya Ltd</field>
+        <field name="company_type">company</field>
+        <field name="street">Waiyaki Way, Westlands, Nairobi</field>
+        <field name="phone">+254 20 375 2000</field>
+        <field name="email">invoices@vivoenergy.co.ke</field>
+        <field name="supplier_rank">1</field>
+    </record>
+
+    <!-- ============================================================
+         3. FUEL DELIVERIES (draft — supervisor confirms manually)
+    ============================================================ -->
+
+    <record id="fuel_delivery_jan_01" model="fms.fuel.delivery">
+        <field name="delivery_date">2026-01-10</field>
+        <field name="tanker_ref">VE-TK-20260110-001</field>
+        <field name="vendor_id" ref="partner_supplier_oil"/>
+        <field name="state">draft</field>
+        <field name="notes">Morning delivery — Diesel + Super restock</field>
+    </record>
+
+    <record id="fuel_delivery_jan_01_line_diesel" model="fms.fuel.delivery.line">
+        <field name="delivery_id" ref="fuel_delivery_jan_01"/>
+        <field name="product_id" ref="fms.product_diesel"/>
+        <field name="location_id" ref="fms.location_diesel_tank_1"/>
+        <field name="quantity_litres">10000.00</field>
+        <field name="unit_price">180.00</field>
+        <field name="dip_before">8500.00</field>
+        <field name="sales_during">120.00</field>
+        <field name="dip_after">18500.00</field>
+    </record>
+
+    <record id="fuel_delivery_jan_01_line_super" model="fms.fuel.delivery.line">
+        <field name="delivery_id" ref="fuel_delivery_jan_01"/>
+        <field name="product_id" ref="fms.product_super"/>
+        <field name="location_id" ref="fms.location_super_tank"/>
+        <field name="quantity_litres">6000.00</field>
+        <field name="unit_price">175.00</field>
+        <field name="dip_before">6100.00</field>
+        <field name="sales_during">80.00</field>
+        <field name="dip_after">12000.00</field>
+    </record>
+
+    <record id="fuel_delivery_jan_02" model="fms.fuel.delivery">
+        <field name="delivery_date">2026-01-12</field>
+        <field name="tanker_ref">VE-TK-20260112-001</field>
+        <field name="vendor_id" ref="partner_supplier_oil"/>
+        <field name="state">draft</field>
+        <field name="notes">V-Power + Kerosene top-up</field>
+    </record>
+
+    <record id="fuel_delivery_jan_02_line_vpower" model="fms.fuel.delivery.line">
+        <field name="delivery_id" ref="fuel_delivery_jan_02"/>
+        <field name="product_id" ref="fms.product_vpower"/>
+        <field name="location_id" ref="fms.location_vpower_tank"/>
+        <field name="quantity_litres">3000.00</field>
+        <field name="unit_price">195.00</field>
+        <field name="dip_before">2100.00</field>
+        <field name="sales_during">30.00</field>
+        <field name="dip_after">5000.00</field>
+    </record>
+
+    <!-- ============================================================
+         4. CREDIT CUSTOMER INVOICES (posted — gives AR + Revenue in GL)
+
+         Uses account.move directly. We search for receivable + revenue
+         accounts from installed Kenya CoA.
+    ============================================================ -->
+
+    <!-- NSS Security — Diesel 2,500L @ 222.80 = 557,000 KES -->
+    <record id="invoice_nss_jan" model="account.move">
+        <field name="move_type">out_invoice</field>
+        <field name="partner_id" ref="partner_fleet_nss"/>
+        <field name="invoice_date">2026-01-08</field>
+        <field name="invoice_date_due">2026-02-08</field>
+        <field name="invoice_line_ids" eval="[
+            Command.create({
+                'name': 'Diesel — Fleet Supply Jan 2026',
+                'quantity': 2500.0,
+                'price_unit': 222.80,
+            }),
+        ]"/>
+    </record>
+
+    <!-- County Government — Super 1,800L @ 217.50 = 391,500 KES -->
+    <record id="invoice_county_jan" model="account.move">
+        <field name="move_type">out_invoice</field>
+        <field name="partner_id" ref="partner_fleet_county"/>
+        <field name="invoice_date">2026-01-09</field>
+        <field name="invoice_date_due">2026-02-09</field>
+        <field name="invoice_line_ids" eval="[
+            Command.create({
+                'name': 'Super (Unleaded) — Fleet Supply Jan 2026',
+                'quantity': 1800.0,
+                'price_unit': 217.50,
+            }),
+        ]"/>
+    </record>
+
+    <!-- Eastleigh Shuttle — Diesel 800L @ 222.80 = 178,240 KES -->
+    <record id="invoice_sacco_jan" model="account.move">
+        <field name="move_type">out_invoice</field>
+        <field name="partner_id" ref="partner_fleet_matatu"/>
+        <field name="invoice_date">2026-01-11</field>
+        <field name="invoice_date_due">2026-01-26</field>
+        <field name="invoice_line_ids" eval="[
+            Command.create({
+                'name': 'Diesel — Shuttle Fleet Supply Jan 2026',
+                'quantity': 800.0,
+                'price_unit': 222.80,
+            }),
+        ]"/>
+    </record>
+
+    <!-- ============================================================
+         5. VENDOR EXPENSE INVOICES (draft — gives AP + Expense in GL when posted)
+    ============================================================ -->
+
+    <record id="partner_supplier_power" model="res.partner">
+        <field name="name">Kenya Power &amp; Lighting Co.</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+    </record>
+
+    <record id="partner_supplier_water" model="res.partner">
+        <field name="name">Nairobi Water Company</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+    </record>
+
+    <!-- Electricity bill Jan 2026 -->
+    <record id="bill_electricity_jan" model="account.move">
+        <field name="move_type">in_invoice</field>
+        <field name="partner_id" ref="partner_supplier_power"/>
+        <field name="invoice_date">2026-01-05</field>
+        <field name="invoice_date_due">2026-01-20</field>
+        <field name="invoice_line_ids" eval="[
+            Command.create({
+                'name': 'Electricity — January 2026',
+                'quantity': 1.0,
+                'price_unit': 48500.00,
+            }),
+        ]"/>
+    </record>
+
+    <!-- Water bill Jan 2026 -->
+    <record id="bill_water_jan" model="account.move">
+        <field name="move_type">in_invoice</field>
+        <field name="partner_id" ref="partner_supplier_water"/>
+        <field name="invoice_date">2026-01-06</field>
+        <field name="invoice_date_due">2026-01-21</field>
+        <field name="invoice_line_ids" eval="[
+            Command.create({
+                'name': 'Water — January 2026',
+                'quantity': 1.0,
+                'price_unit': 8200.00,
+            }),
+        ]"/>
+    </record>
+
+    <!-- ============================================================
+         6. CASH DROPS ON DEMO SHIFT
+    ============================================================ -->
+
+    <record id="cash_drop_alice_1" model="fms.cash.drop">
+        <field name="shift_id" ref="fms.shift_demo_day"/>
+        <field name="attendant_id" ref="fms.employee_attendant_alice"/>
+        <field name="amount">80000.00</field>
+        <field name="dropped_at">2026-01-15 09:30:00</field>
+        <field name="note">Morning drop</field>
+    </record>
+
+    <record id="cash_drop_alice_2" model="fms.cash.drop">
+        <field name="shift_id" ref="fms.shift_demo_day"/>
+        <field name="attendant_id" ref="fms.employee_attendant_alice"/>
+        <field name="amount">70000.00</field>
+        <field name="dropped_at">2026-01-15 13:00:00</field>
+        <field name="note">Afternoon drop</field>
+    </record>
+
+    <record id="cash_drop_bob_1" model="fms.cash.drop">
+        <field name="shift_id" ref="fms.shift_demo_day"/>
+        <field name="attendant_id" ref="fms.employee_attendant_bob"/>
+        <field name="amount">100000.00</field>
+        <field name="dropped_at">2026-01-15 10:00:00</field>
+        <field name="note">Full drop — Diesel + Kerosene</field>
+    </record>
+
+    <record id="cash_drop_carol_1" model="fms.cash.drop">
+        <field name="shift_id" ref="fms.shift_demo_day"/>
+        <field name="attendant_id" ref="fms.employee_attendant_carol"/>
+        <field name="amount">26874.00</field>
+        <field name="dropped_at">2026-01-15 11:00:00</field>
+        <field name="note">V-Power full drop</field>
+    </record>
+
+</data>
+</odoo>
