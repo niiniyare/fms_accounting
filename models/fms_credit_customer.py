@@ -18,7 +18,7 @@ class ResPartnerCreditLimit(models.Model):
         help="Mark this partner as a fleet account holder eligible for credit fuel purchases.",
     )
     fms_credit_limit   = fields.Float(
-        'Credit Limit', default=0.0,
+        'FMS Credit Limit', default=0.0,
         help="Maximum outstanding balance allowed. 0 = no limit enforced.",
     )
     fms_on_hold        = fields.Boolean(

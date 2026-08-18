@@ -36,7 +36,7 @@ class FMSReportDebtorAging(models.Model):
     last_payment_date = fields.Date('Last Payment',         readonly=True)
 
     # ── Credit control ────────────────────────────────────────────────────
-    credit_limit  = fields.Float('Credit Limit',      readonly=True, digits=(16, 2))
+    credit_limit  = fields.Float('FMS Credit Limit',  readonly=True, digits=(16, 2))
     exposure_pct  = fields.Float('Exposure %',              readonly=True, digits=(16, 1))
     over_limit    = fields.Boolean('Over Limit',            readonly=True)
     on_hold       = fields.Boolean('On Hold',               readonly=True)
