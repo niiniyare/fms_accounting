@@ -2,223 +2,26 @@
 <odoo>
 
     <!-- ═══════════════════════════════════════════════════════════
-         fms.cash.drop — standalone list + form
+         fms.cash.drop — inline list only (used inside shift form)
     ═══════════════════════════════════════════════════════════ -->
 
     <record id="view_fms_cash_drop_list" model="ir.ui.view">
         <field name="name">fms.cash.drop.list</field>
         <field name="model">fms.cash.drop</field>
         <field name="arch" type="xml">
-            <list string="Cash Drops" decoration-muted="state=='posted'">
-                <field name="name"/>
-                <field name="shift_id"/>
-                <field name="attendant_id"/>
-                <field name="dropped_at"/>
-                <field name="amount" sum="Total"/>
-                <field name="journal_id"/>
-                <field name="state" widget="badge"
-                       decoration-success="state=='posted'"
-                       decoration-warning="state=='draft'"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_fms_cash_drop_form" model="ir.ui.view">
-        <field name="name">fms.cash.drop.form</field>
-        <field name="model">fms.cash.drop</field>
-        <field name="arch" type="xml">
-            <form string="Cash Drop">
-                <header>
-                    <button name="action_post" string="Post Drop"
-                            type="object" class="btn-primary"
-                            invisible="state == 'posted'"/>
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,posted"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1><field name="name" readonly="1"/></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="shift_id" readonly="state == 'posted'"/>
-                            <field name="attendant_id" readonly="state == 'posted'"/>
-                            <field name="journal_id" readonly="state == 'posted'"/>
-                        </group>
-                        <group>
-                            <field name="amount" readonly="state == 'posted'"/>
-                            <field name="dropped_at" readonly="state == 'posted'"/>
-                            <field name="note" readonly="state == 'posted'"/>
-                        </group>
-                    </group>
-                    <group invisible="not move_id">
-                        <field name="move_id" readonly="1"/>
-                    </group>
-                </sheet>
-                <chatter/>
-            </form>
-        </field>
-    </record>
-
-    <!-- Inline list for shift form Cash tab -->
-    <record id="view_fms_cash_drop_inline_list" model="ir.ui.view">
-        <field name="name">fms.cash.drop.inline.list</field>
-        <field name="model">fms.cash.drop</field>
-        <field name="arch" type="xml">
             <list string="Cash Drops" editable="bottom">
                 <field name="attendant_id"
                        domain="[('fms_is_attendant','=',True)]"/>
-                <field name="amount"/>
+                <field name="amount" sum="Total"/>
                 <field name="dropped_at"/>
-                <field name="journal_id" domain="[('type','=','cash')]"/>
-                <field name="note"/>
-                <field name="state" widget="badge"
-                       decoration-success="state=='posted'"
-                       decoration-warning="state=='draft'"/>
-                <button name="action_post" string="Post" type="object"
-                        icon="fa-check" class="btn-sm btn-success"
-                        invisible="state == 'posted'"/>
+                <field name="note" optional="show"/>
+                <field name="name" readonly="1" optional="hide"/>
             </list>
         </field>
-    </record>
-
-    <record id="action_fms_cash_drop" model="ir.actions.act_window">
-        <field name="name">Cash Drops</field>
-        <field name="res_model">fms.cash.drop</field>
-        <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_today': 1}</field>
     </record>
 
     <!-- ═══════════════════════════════════════════════════════════
-         fms.cash.declaration — standalone list + form
-    ═══════════════════════════════════════════════════════════ -->
-
-    <record id="view_fms_cash_declaration_list" model="ir.ui.view">
-        <field name="name">fms.cash.declaration.list</field>
-        <field name="model">fms.cash.declaration</field>
-        <field name="arch" type="xml">
-            <list string="Cash Declarations"
-                  decoration-danger="variance_type == 'short'"
-                  decoration-warning="variance_type == 'over'"
-                  decoration-success="state == 'resolved'">
-                <field name="shift_id"/>
-                <field name="attendant_id"/>
-                <field name="drops_total" string="Drops Total"/>
-                <field name="declared_amount" string="Declared"/>
-                <field name="expected_cash" string="Expected"/>
-                <field name="variance" string="Variance"/>
-                <field name="variance_type" widget="badge"
-                       decoration-danger="variance_type == 'short'"
-                       decoration-warning="variance_type == 'over'"
-                       decoration-success="variance_type == 'balanced'"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state == 'declared'"
-                       decoration-success="state == 'resolved'"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_fms_cash_declaration_form" model="ir.ui.view">
-        <field name="name">fms.cash.declaration.form</field>
-        <field name="model">fms.cash.declaration</field>
-        <field name="arch" type="xml">
-            <form string="Cash Declaration">
-                <header>
-                    <button name="action_declare" string="Submit Declaration"
-                            type="object" class="btn-primary"
-                            invisible="state != 'draft'"
-                            groups="fms.group_fms_attendant"/>
-                    <button name="action_post_resolution" string="Post Resolution"
-                            type="object" class="btn-warning"
-                            invisible="state != 'declared'"
-                            groups="fms.group_fms_supervisor"/>
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,declared,resolved"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1><field name="display_name" readonly="1"/></h1>
-                    </div>
-                    <group>
-                        <group string="Shift &amp; Attendant">
-                            <field name="shift_id" readonly="state != 'draft'"/>
-                            <field name="attendant_id" readonly="state != 'draft'"/>
-                        </group>
-                        <group string="Cash Summary">
-                            <field name="drops_total" readonly="1"/>
-                            <field name="expected_cash" readonly="1"/>
-                            <field name="declared_amount"
-                                   readonly="state != 'draft'"
-                                   widget="monetary"/>
-                        </group>
-                    </group>
-                    <group string="Variance" invisible="state == 'draft'">
-                        <group>
-                            <field name="variance" readonly="1" widget="monetary"
-                                   decoration-danger="variance_type == 'short'"
-                                   decoration-warning="variance_type == 'over'"
-                                   decoration-success="variance_type == 'balanced'"/>
-                            <field name="variance_type" readonly="1" widget="badge"
-                                   decoration-danger="variance_type == 'short'"
-                                   decoration-warning="variance_type == 'over'"
-                                   decoration-success="variance_type == 'balanced'"/>
-                        </group>
-                        <group>
-                            <field name="receipt_move_id" readonly="1"
-                                   invisible="not receipt_move_id"/>
-                            <field name="resolution_move_id" readonly="1"
-                                   invisible="not resolution_move_id"/>
-                        </group>
-                    </group>
-                </sheet>
-                <chatter/>
-            </form>
-        </field>
-    </record>
-
-    <!-- Inline list for shift form Cash tab -->
-    <record id="view_fms_cash_declaration_inline_list" model="ir.ui.view">
-        <field name="name">fms.cash.declaration.inline.list</field>
-        <field name="model">fms.cash.declaration</field>
-        <field name="arch" type="xml">
-            <list string="Cash Declarations" editable="bottom">
-                <field name="attendant_id"
-                       domain="[('fms_is_attendant','=',True)]"
-                       readonly="state != 'draft'"/>
-                <field name="drops_total" readonly="1"/>
-                <field name="expected_cash" readonly="1"/>
-                <field name="declared_amount" readonly="state != 'draft'"/>
-                <field name="variance" readonly="1"
-                       decoration-danger="variance_type == 'short'"
-                       decoration-warning="variance_type == 'over'"/>
-                <field name="variance_type" widget="badge"
-                       decoration-danger="variance_type == 'short'"
-                       decoration-warning="variance_type == 'over'"
-                       decoration-success="variance_type == 'balanced'"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state == 'declared'"
-                       decoration-success="state == 'resolved'"/>
-                <button name="action_declare" string="Declare" type="object"
-                        icon="fa-check" class="btn-sm btn-primary"
-                        invisible="state != 'draft'"/>
-                <button name="action_post_resolution" string="Resolve" type="object"
-                        icon="fa-gavel" class="btn-sm btn-warning"
-                        invisible="state != 'declared'"
-                        groups="fms.group_fms_supervisor"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="action_fms_cash_declaration" model="ir.actions.act_window">
-        <field name="name">Cash Declarations</field>
-        <field name="res_model">fms.cash.declaration</field>
-        <field name="view_mode">list,form</field>
-    </record>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         Inject Cash Drops + Declarations into the shift form Cash tab
+         Inject Cash Drops tab into the shift form beside Tank Dips
     ═══════════════════════════════════════════════════════════ -->
 
     <record id="view_fms_shift_form_cash_drop_inherit" model="ir.ui.view">
@@ -226,38 +29,28 @@
         <field name="model">fms.shift</field>
         <field name="inherit_id" ref="fms.view_fms_shift_form"/>
         <field name="arch" type="xml">
-            <!-- Insert after the existing FC Cash Gate group, inside the cash page -->
-            <xpath expr="//group[@name='fc_cash_gate_group']" position="after">
-
-                <separator string="Cash Drops"/>
-                <field name="cash_drop_ids"
-                       readonly="state == 'closed'"
-                       context="{'default_shift_id': id}"/>
-
-                <separator string="Cash Declarations (Blind Count at Close)"/>
-                <p class="text-muted">
-                    Each attendant declares total cash handed over (including all drops above).
-                    Manager posts the variance resolution before shift can close.
-                </p>
-                <field name="cash_declaration_ids"
-                       readonly="state == 'closed'"
-                       context="{'default_shift_id': id}"/>
-
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Shift Variance Account on Site Preferences form -->
-    <record id="view_fms_site_prefs_variance_inherit" model="ir.ui.view">
-        <field name="name">fms.site.preferences.variance.inherit</field>
-        <field name="model">fms.site.preferences</field>
-        <field name="inherit_id" ref="fms.view_fms_site_preferences_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='clearing_account_id']" position="after">
-                <field name="shift_variance_account_id"/>
+            <xpath expr="//page[@name='dips']" position="after">
+                <page string="Cash Drops" name="cash_drops">
+                    <p class="text-muted">
+                        Record each cash drop as it occurs, or a single lump sum at shift end.
+                        The total per attendant flows automatically into the
+                        <strong>Attendant Cash</strong> reconciliation.
+                    </p>
+                    <field name="cash_drop_ids"
+                           readonly="state == 'closed'"
+                           context="{'default_shift_id': id}">
+                        <list editable="bottom" string="Cash Drops">
+                            <field name="attendant_id"
+                                   domain="[('fms_is_attendant','=',True)]"/>
+                            <field name="amount" sum="Total Dropped"/>
+                            <field name="dropped_at"/>
+                            <field name="note" optional="show"/>
+                            <field name="name" readonly="1" optional="hide"/>
+                        </list>
+                    </field>
+                </page>
             </xpath>
         </field>
     </record>
 
 </odoo>
-

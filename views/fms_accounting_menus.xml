@@ -46,20 +46,6 @@
               groups="fms.group_fms_supervisor"
               sequence="20"/>
 
-    <menuitem id="menu_fms_cash_drops"
-              name="Cash Drops"
-              parent="fms.menu_fms_cash"
-              action="fms_accounting.action_fms_cash_drop"
-              groups="fms.group_fms_attendant"
-              sequence="25"/>
-
-    <menuitem id="menu_fms_cash_declarations"
-              name="Cash Declarations"
-              parent="fms.menu_fms_cash"
-              action="fms_accounting.action_fms_cash_declaration"
-              groups="fms.group_fms_supervisor"
-              sequence="27"/>
-
     <menuitem id="menu_fms_vendor_payments"
               name="Vendor Payments"
               parent="fms.menu_fms_cash"
