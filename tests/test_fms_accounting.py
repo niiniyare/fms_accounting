@@ -32,6 +32,10 @@ class FMSAccountingBase(TransactionCase):
             ('account_type', '=', 'asset_receivable'),
             ('company_ids', 'in', company.id),
         ], limit=1) or self._account('asset_receivable', '9004', 'UAT Receivable')
+        self.payable         = self.env['account.account'].search([
+            ('account_type', '=', 'liability_payable'),
+            ('company_ids', 'in', company.id),
+        ], limit=1) or self._account('liability_payable', '9005', 'UAT Payable')
 
         # Cash journal (for petty cash)
         self.cash_journal = self.env['account.journal'].search([
@@ -79,9 +83,10 @@ class FMSAccountingBase(TransactionCase):
             'fms_fuel_product_id': self.diesel.id,
         })
 
-        # Supplier
+        # Supplier — set payable account so Odoo can create balancing move line on vendor bills
         self.supplier = self.env['res.partner'].create({
             'name': 'ACC-Supplier', 'supplier_rank': 1,
+            'property_account_payable_id': self.payable.id,
         })
 
         # Customer
