@@ -13,6 +13,10 @@ from odoo.exceptions import UserError, ValidationError
 class ResPartnerCreditLimit(models.Model):
     _inherit = 'res.partner'
 
+    fms_is_fleet_customer = fields.Boolean(
+        'Fleet Customer', default=False,
+        help="Mark this partner as a fleet account holder eligible for credit fuel purchases.",
+    )
     fms_credit_limit   = fields.Float(
         'Credit Limit (KES)', default=0.0,
         help="Maximum outstanding balance allowed. 0 = no limit enforced.",
@@ -66,8 +70,8 @@ class AccountMoveVehicle(models.Model):
         help="Vehicle registration or plate number for fleet credit invoices.",
     )
     fms_driver = fields.Many2one(
-        'hr.employee', 'Driver',
-        help="Driver or authorised person for this credit transaction.",
+        'hr.employee', 'Driver (Employee)',
+        help="Driver or authorised person for this credit transaction (legacy: employee link).",
     )
 
     # Credit limit bypass — only a supervisor should set this

@@ -56,6 +56,20 @@
               groups="fms.group_fms_supervisor"
               sequence="50"/>
 
+    <menuitem id="menu_fms_fleet_vehicles"
+              name="Fleet Vehicles"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_vehicle"
+              groups="fms.group_fms_supervisor"
+              sequence="60"/>
+
+    <menuitem id="menu_fms_drivers"
+              name="Drivers"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_driver"
+              groups="fms.group_fms_supervisor"
+              sequence="65"/>
+
     <!-- ══════════════════════════════════════════════════
          REPORTING — financial reports (accountant only)
     ══════════════════════════════════════════════════ -->

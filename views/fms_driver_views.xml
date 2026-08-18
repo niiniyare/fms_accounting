@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fms_driver_list" model="ir.ui.view">
+        <field name="name">fms.driver.list</field>
+        <field name="model">fms.driver</field>
+        <field name="arch" type="xml">
+            <list string="Drivers">
+                <field name="name"/>
+                <field name="license_no"/>
+                <field name="partner_id"/>
+                <field name="employee_id"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fms_driver_form" model="ir.ui.view">
+        <field name="name">fms.driver.form</field>
+        <field name="model">fms.driver</field>
+        <field name="arch" type="xml">
+            <form string="Driver">
+                <sheet>
+                    <group>
+                        <group string="Driver">
+                            <field name="name"/>
+                            <field name="license_no"/>
+                            <field name="company_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Links">
+                            <field name="partner_id"/>
+                            <field name="employee_id"/>
+                        </group>
+                    </group>
+                    <group string="Authorised Vehicles">
+                        <field name="vehicle_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fms_driver" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">fms.driver</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

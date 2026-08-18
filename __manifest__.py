@@ -15,6 +15,8 @@
         # Views
         "views/fms_financial_report_views.xml",
         "views/fms_sales_receipt_views.xml",
+        "views/fms_vehicle_views.xml",
+        "views/fms_driver_views.xml",
         "views/fms_credit_customer_views.xml",
         "views/fms_fuel_delivery_views.xml",
         "views/fms_petty_cash_views.xml",

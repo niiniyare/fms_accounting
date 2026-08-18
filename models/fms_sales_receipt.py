@@ -122,6 +122,12 @@ class FMSSalesReceiptMove(models.Model):
                 # Write directly — bypass readonly view restriction which
                 # applies to the client, not server-side writes.
                 move.write({'fms_shift_id': shift.id})
+            else:
+                from odoo.exceptions import ValidationError
+                raise ValidationError(
+                    f"No active shift found for {move.company_id.name}. "
+                    "Open a shift before recording sales receipts."
+                )
         return moves
 
     # ------------------------------------------------------------------

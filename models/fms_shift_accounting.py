@@ -126,3 +126,32 @@ class FMSFuelDeliveryShiftLink(models.Model):
         'fms.shift', 'Shift', ondelete='set null',
         help="Shift during which this delivery arrived.",
     )
+
+
+class FMSAccountMoveExtension(models.Model):
+    """Add FMS context fields to invoices and receipts."""
+    _inherit = 'account.move'
+
+    fms_shift_id = fields.Many2one(
+        'fms.shift', 'FMS Shift',
+        ondelete='restrict',
+        help="The shift during which this sale was made.",
+        copy=False,
+    )
+    fms_attendant_id = fields.Many2one(
+        'hr.employee', 'Attendant',
+        domain=[('fms_is_attendant', '=', True)],
+        help="The pump attendant who made this sale.",
+    )
+    fms_vehicle_id = fields.Many2one(
+        'fms.vehicle', 'Vehicle',
+        help="The vehicle fuelled (for fleet/credit sales).",
+    )
+    fms_driver_id = fields.Many2one(
+        'fms.driver', 'Driver',
+        help="The driver at the pump (for fleet/credit sales).",
+    )
+    fms_station_id = fields.Many2one(
+        'res.company', 'Station',
+        related='fms_shift_id.company_id', store=True, readonly=True,
+    )

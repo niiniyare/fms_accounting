@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fms_vehicle_list" model="ir.ui.view">
+        <field name="name">fms.vehicle.list</field>
+        <field name="model">fms.vehicle</field>
+        <field name="arch" type="xml">
+            <list string="Fleet Vehicles">
+                <field name="license_plate"/>
+                <field name="make"/>
+                <field name="model"/>
+                <field name="year"/>
+                <field name="fuel_type"/>
+                <field name="partner_id"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fms_vehicle_form" model="ir.ui.view">
+        <field name="name">fms.vehicle.form</field>
+        <field name="model">fms.vehicle</field>
+        <field name="arch" type="xml">
+            <form string="Fleet Vehicle">
+                <sheet>
+                    <group>
+                        <group string="Vehicle">
+                            <field name="license_plate"/>
+                            <field name="make"/>
+                            <field name="model"/>
+                            <field name="year"/>
+                            <field name="fuel_type"/>
+                        </group>
+                        <group string="Account">
+                            <field name="partner_id"/>
+                            <field name="company_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Authorised Drivers">
+                        <field name="driver_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fms_vehicle" model="ir.actions.act_window">
+        <field name="name">Fleet Vehicles</field>
+        <field name="res_model">fms.vehicle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

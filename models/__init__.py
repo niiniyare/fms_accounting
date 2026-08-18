@@ -1,3 +1,5 @@
+from . import fms_vehicle
+from . import fms_driver
 from . import fms_fuel_delivery
 from . import fms_credit_customer
 from . import fms_petty_cash
