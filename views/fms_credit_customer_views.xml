@@ -76,6 +76,15 @@
         <field name="context">{'default_move_type': 'out_invoice', 'fms_invoice_context': True}</field>
     </record>
 
+    <!-- Customer Statements — invoices grouped by partner (AR ledger view) -->
+    <record id="action_fms_customer_statements" model="ir.actions.act_window">
+        <field name="name">Customer Statements</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('fms_shift_id', '!=', False)]</field>
+        <field name="context">{}</field>
+    </record>
+
     <!-- Separate action for opening the Customers list (fleet customers) -->
     <record id="action_fms_fleet_customers" model="ir.actions.act_window">
         <field name="name">Fleet Customers</field>
