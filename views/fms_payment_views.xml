@@ -102,7 +102,10 @@
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice')]</field>
-        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="context">{
+            'default_move_type': 'out_invoice',
+            'default_fms_shift_id': active_id
+        }</field>
     </record>
 
     <!-- Inventory shortcuts — native Odoo models -->
