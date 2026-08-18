@@ -15,7 +15,7 @@
                   decoration-danger="over_limit == True or on_hold == True"
                   decoration-warning="days_overdue &gt; 60 and not over_limit">
                 <field name="partner_id"     string="Customer"/>
-                <field name="balance"        string="Outstanding (KES)"  sum="Outstanding"/>
+                <field name="balance"        string="Outstanding"  sum="Outstanding"/>
                 <field name="bucket_current" string="Not Due"            sum="Not Due"    optional="show"/>
                 <field name="bucket_1_30"    string="1–30 d"             sum="1–30"       optional="show"/>
                 <field name="bucket_31_60"   string="31–60 d"            sum="31–60"/>
@@ -25,7 +25,7 @@
                 <field name="days_overdue"   string="Days Overdue"
                        decoration-danger="days_overdue &gt; 90"
                        decoration-warning="days_overdue &gt; 60 and days_overdue &lt;= 90"/>
-                <field name="credit_limit"   string="Limit (KES)"        optional="show"/>
+                <field name="credit_limit"   string="Limit"        optional="show"/>
                 <field name="exposure_pct"   string="Exposure %"
                        decoration-danger="exposure_pct &gt;= 100"
                        decoration-warning="exposure_pct &gt;= 90 and exposure_pct &lt; 100"
@@ -49,12 +49,12 @@
         <field name="arch" type="xml">
             <pivot string="Debtors Aging" disable_linking="false">
                 <field name="partner_id"     type="row"/>
-                <field name="balance"        type="measure" string="Outstanding (KES)"/>
+                <field name="balance"        type="measure" string="Outstanding"/>
                 <field name="bucket_1_30"    type="measure" string="1–30 d"/>
                 <field name="bucket_31_60"   type="measure" string="31–60 d"/>
                 <field name="bucket_61_90"   type="measure" string="61–90 d"/>
                 <field name="bucket_90_plus" type="measure" string="90+ d"/>
-                <field name="credit_limit"   type="measure" string="Limit (KES)"/>
+                <field name="credit_limit"   type="measure" string="Limit"/>
             </pivot>
         </field>
     </record>

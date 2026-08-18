@@ -21,7 +21,7 @@
                 <field name="partner_id"        string="Customer"/>
                 <field name="fms_vehicle_reg"   string="Vehicle Reg"   optional="show"/>
                 <field name="fms_card_number"   string="Card/Cheque"   optional="show"/>
-                <field name="amount_total"      string="Total (KES)"   sum="Total"/>
+                <field name="amount_total"      string="Total"   sum="Total"/>
                 <field name="state"             widget="badge"
                        decoration-success="state == 'posted'"
                        decoration-warning="state == 'draft'"
@@ -101,7 +101,7 @@
                     <field name="invoice_line_ids" readonly="state != 'draft'">
                         <list editable="bottom">
                             <field name="product_id"      string="Product"      required="1"/>
-                            <field name="fms_line_amount" string="Amount (KES)"/>
+                            <field name="fms_line_amount" string="Amount"/>
                             <field name="price_unit"      string="Price / Litre"/>
                             <field name="quantity"        string="Litres"       optional="show"/>
                             <field name="tax_ids"         string="Tax"          optional="show"/>

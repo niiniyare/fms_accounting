@@ -40,7 +40,7 @@
                         </group>
                         <group string="Totals">
                             <field name="total_litres" readonly="1"/>
-                            <field name="total_amount" readonly="1" string="Total (KES)"/>
+                            <field name="total_amount" readonly="1" string="Total"/>
                             <field name="stock_picking_id" readonly="1"
                                    invisible="not stock_picking_id"/>
                             <field name="vendor_bill_id" readonly="1"
@@ -59,8 +59,8 @@
                                    domain="[('fms_is_fuel_tank','=',True)]"
                                    string="Destination Tank"/>
                             <field name="quantity_litres" string="Invoiced (L)"/>
-                            <field name="unit_price" string="Price (KES/L)"/>
-                            <field name="subtotal" readonly="1" string="Subtotal (KES)"
+                            <field name="unit_price" string="Price (/L)"/>
+                            <field name="subtotal" readonly="1" string="Subtotal"
                                    sum="Total KES"/>
 
                             <!-- Dip verification columns -->
@@ -97,7 +97,7 @@
                 <field name="vendor_id"/>
                 <field name="tanker_ref"/>
                 <field name="total_litres" string="Total (L)" sum="Grand Total L"/>
-                <field name="total_amount" string="Total (KES)" sum="Grand Total KES"/>
+                <field name="total_amount" string="Total" sum="Grand Total KES"/>
                 <field name="state" widget="badge"
                        decoration-muted="state == 'draft'"
                        decoration-success="state == 'confirmed'"

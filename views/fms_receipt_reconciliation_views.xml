@@ -16,7 +16,7 @@
                 <field name="product_name" type="row"/>
                 <field name="receipt_count" type="measure" string="Receipts"/>
                 <field name="total_litres"  type="measure" string="Litres"/>
-                <field name="total_amount"  type="measure" string="Amount (KES)"/>
+                <field name="total_amount"  type="measure" string="Amount"/>
             </pivot>
         </field>
     </record>
@@ -40,7 +40,7 @@
                 <field name="product_name"  string="Product"/>
                 <field name="receipt_count" string="Receipts" sum="Receipts"/>
                 <field name="total_litres"  string="Litres"   sum="Litres"/>
-                <field name="total_amount"  string="Amount (KES)" sum="Amount"/>
+                <field name="total_amount"  string="Amount" sum="Amount"/>
                 <field name="state_draft"   string="Draft"    optional="show"/>
                 <field name="state_posted"  string="Confirmed" optional="show"
                        decoration-danger="state_posted == 0"

@@ -18,7 +18,7 @@ class ResPartnerCreditLimit(models.Model):
         help="Mark this partner as a fleet account holder eligible for credit fuel purchases.",
     )
     fms_credit_limit   = fields.Float(
-        'Credit Limit (KES)', default=0.0,
+        'Credit Limit', default=0.0,
         help="Maximum outstanding balance allowed. 0 = no limit enforced.",
     )
     fms_on_hold        = fields.Boolean(
@@ -26,7 +26,7 @@ class ResPartnerCreditLimit(models.Model):
         help="Block all new credit sales — no supervisor override available.",
     )
     fms_credit_exposure = fields.Float(
-        'Current Exposure (KES)', compute='_compute_credit_exposure', store=False,
+        'Current Exposure', compute='_compute_credit_exposure', store=False,
         help="Posted AR + unposted customer invoices. Used by the credit limit check.",
     )
     fms_exposure_pct   = fields.Float(
@@ -112,8 +112,8 @@ class AccountMoveVehicle(models.Model):
                         'title': 'Over Credit Limit',
                         'message': (
                             f"{partner.name} is over their credit limit.\n"
-                            f"Limit: KES {partner.fms_credit_limit:,.2f}\n"
-                            f"Exposure: KES {exposure:,.2f} ({pct:.1f}%)\n\n"
+                            f"Limit: {self.company_id.currency_id.name} {partner.fms_credit_limit:,.2f}\n"
+                            f"Exposure: {self.company_id.currency_id.name} {exposure:,.2f} ({pct:.1f}%)\n\n"
                             "A supervisor override with reason is required to post."
                         ),
                     }
@@ -124,7 +124,7 @@ class AccountMoveVehicle(models.Model):
                         'title': 'Approaching Credit Limit',
                         'message': (
                             f"{partner.name} is at {pct:.1f}% of their credit limit "
-                            f"(KES {exposure:,.2f} of KES {partner.fms_credit_limit:,.2f})."
+                            f"({self.company_id.currency_id.name} {exposure:,.2f} of {self.company_id.currency_id.name} {partner.fms_credit_limit:,.2f})."
                         ),
                     }
                 }
@@ -165,8 +165,8 @@ class AccountMoveVehicle(models.Model):
                     if not move.fms_limit_bypass:
                         raise UserError(
                             f"Credit limit exceeded for {partner.name}.\n"
-                            f"Limit: KES {partner.fms_credit_limit:,.2f}\n"
-                            f"Exposure after this invoice: KES {exposure_after:,.2f}\n\n"
+                            f"Limit: {move.company_id.currency_id.name} {partner.fms_credit_limit:,.2f}\n"
+                            f"Exposure after this invoice: {move.company_id.currency_id.name} {exposure_after:,.2f}\n\n"
                             "To override, tick 'Credit Limit Override' and enter a reason."
                         )
                     if not move.fms_limit_bypass_reason:

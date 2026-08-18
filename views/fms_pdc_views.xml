@@ -32,7 +32,7 @@
                 <field name="fms_cheque_date" string="Cheque Date"/>
                 <field name="partner_id" string="Customer"/>
                 <field name="fms_cheque_number" string="Cheque No."/>
-                <field name="amount" string="Amount (KES)" sum="Total"/>
+                <field name="amount" string="Amount" sum="Total"/>
                 <field name="fms_pdc_state" string="Status" widget="badge"
                        decoration-warning="fms_pdc_state == 'held'"
                        decoration-success="fms_pdc_state == 'cleared'"

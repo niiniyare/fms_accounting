@@ -25,7 +25,7 @@ class FMSReceiptReconciliation(models.Model):
     product_name  = fields.Char(                        'Product Name', readonly=True)
     receipt_count = fields.Integer(                     'Receipts',     readonly=True)
     total_litres  = fields.Float(  'Litres',  digits=(16, 3),           readonly=True)
-    total_amount  = fields.Float(  'Amount (KES)', digits=(16, 2),      readonly=True)
+    total_amount  = fields.Float(  'Amount', digits=(16, 2),      readonly=True)
     state_draft   = fields.Integer('Draft',                             readonly=True)
     state_posted  = fields.Integer('Confirmed',                         readonly=True)
 

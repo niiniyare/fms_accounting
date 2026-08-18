@@ -49,7 +49,7 @@ class FMSFuelDelivery(models.Model):
     # ------------------------------------------------------------------
 
     total_litres = fields.Float('Total Litres', compute='_compute_totals', digits=(16, 2))
-    total_amount = fields.Float('Total Amount (KES)', compute='_compute_totals', digits=(16, 2))
+    total_amount = fields.Float('Total Amount', compute='_compute_totals', digits=(16, 2))
 
     @api.depends('delivery_line_ids.quantity_litres', 'delivery_line_ids.unit_price')
     def _compute_totals(self):
@@ -233,7 +233,7 @@ class FMSFuelDeliveryLine(models.Model):
         domain=[('fms_is_fuel_tank', '=', True)],
     )
     quantity_litres = fields.Float('Invoiced Qty (L)', digits=(16, 2))
-    unit_price = fields.Float('Unit Price (KES/L)', digits=(16, 4))
+    unit_price = fields.Float('Unit Price (/L)', digits=(16, 4))
 
     # ── Dip verification ─────────────────────────────────────────────────────
     dip_before = fields.Float(
@@ -263,7 +263,7 @@ class FMSFuelDeliveryLine(models.Model):
             line.expected_qty = line.dip_before + line.quantity_litres - line.sales_during
             line.variance = line.dip_after - line.expected_qty
 
-    subtotal = fields.Float('Subtotal (KES)', compute='_compute_subtotal', digits=(16, 2))
+    subtotal = fields.Float('Subtotal', compute='_compute_subtotal', digits=(16, 2))
 
     @api.depends('quantity_litres', 'unit_price')
     def _compute_subtotal(self):

@@ -82,3 +82,14 @@ class FMSAccountPaymentExtension(models.Model):
                     f"Cannot link a payment to closed shift '{pay.fms_shift_id.display_name}'. "
                     "Closed shifts are locked."
                 )
+
+    def _auto_init(self):
+        super()._auto_init()
+        # FIN-010: composite index for FIN-008 SQL view aggregation queries
+        # (shift_id, attendant_id, payment_context, state) — covers all WHERE clauses
+        # in _compute_from_payments and the R27 SQL view.
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS account_payment_fms_shift_context_idx
+            ON account_payment (fms_shift_id, fms_attendant_id, fms_payment_context, state)
+            WHERE fms_shift_id IS NOT NULL
+        """)

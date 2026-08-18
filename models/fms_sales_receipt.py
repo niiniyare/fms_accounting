@@ -156,7 +156,7 @@ class FMSSalesReceiptLine(models.Model):
     _inherit = 'account.move.line'
 
     fms_line_amount = fields.Float(
-        'Amount (KES)',
+        'Amount',
         digits=(16, 2),
         help="Enter the sale amount; litres are back-calculated from the unit price.",
     )

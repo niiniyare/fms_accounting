@@ -46,9 +46,9 @@
                 <page string="FMS Credit" name="fms_credit"
                       groups="fms.group_fms_supervisor">
                     <group string="Credit Control">
-                        <field name="fms_credit_limit"    string="Credit Limit (KES)"/>
+                        <field name="fms_credit_limit"    string="Credit Limit"/>
                         <field name="fms_on_hold"         string="Account on Hold"/>
-                        <field name="fms_credit_exposure" string="Current Exposure (KES)"
+                        <field name="fms_credit_exposure" string="Current Exposure"
                                readonly="1"/>
                         <field name="fms_exposure_pct"    string="Exposure %"
                                readonly="1" widget="float" digits="[16,1]"/>

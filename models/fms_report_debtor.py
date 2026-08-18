@@ -26,17 +26,17 @@ class FMSReportDebtorAging(models.Model):
     company_id    = fields.Many2one('res.company',  'Company',   readonly=True)
 
     # ── Balance & aging buckets ───────────────────────────────────────────
-    balance       = fields.Float('Total Outstanding (KES)', readonly=True, digits=(16, 2))
-    bucket_current = fields.Float('Not Yet Due (KES)',      readonly=True, digits=(16, 2))
-    bucket_1_30   = fields.Float('1–30 Days (KES)',         readonly=True, digits=(16, 2))
-    bucket_31_60  = fields.Float('31–60 Days (KES)',        readonly=True, digits=(16, 2))
-    bucket_61_90  = fields.Float('61–90 Days (KES)',        readonly=True, digits=(16, 2))
-    bucket_90_plus = fields.Float('90+ Days (KES)',         readonly=True, digits=(16, 2))
+    balance       = fields.Float('Total Outstanding', readonly=True, digits=(16, 2))
+    bucket_current = fields.Float('Not Yet Due',      readonly=True, digits=(16, 2))
+    bucket_1_30   = fields.Float('1–30 Days',         readonly=True, digits=(16, 2))
+    bucket_31_60  = fields.Float('31–60 Days',        readonly=True, digits=(16, 2))
+    bucket_61_90  = fields.Float('61–90 Days',        readonly=True, digits=(16, 2))
+    bucket_90_plus = fields.Float('90+ Days',         readonly=True, digits=(16, 2))
     days_overdue  = fields.Integer('Days Overdue (oldest)', readonly=True)
     last_payment_date = fields.Date('Last Payment',         readonly=True)
 
     # ── Credit control ────────────────────────────────────────────────────
-    credit_limit  = fields.Float('Credit Limit (KES)',      readonly=True, digits=(16, 2))
+    credit_limit  = fields.Float('Credit Limit',      readonly=True, digits=(16, 2))
     exposure_pct  = fields.Float('Exposure %',              readonly=True, digits=(16, 1))
     over_limit    = fields.Boolean('Over Limit',            readonly=True)
     on_hold       = fields.Boolean('On Hold',               readonly=True)
