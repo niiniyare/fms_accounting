@@ -2,7 +2,7 @@
 fms_financial_reports.py — P&L, Balance Sheet, Trial Balance wizards.
 
 All three reports query account.move.line directly by account_type so
-they are always complete regardless of Cybrosys/OCA report configuration.
+they are always complete regardless of third-party report addon configuration.
 
 Account type groupings (Odoo 18):
   Income        : income, income_other
