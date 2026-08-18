@@ -12,6 +12,7 @@
 
         # Data
         "data/fms_accounting_data.xml",
+        "data/fms_accounting_company_defaults.xml",
 
         # Views
         "views/fms_financial_report_views.xml",

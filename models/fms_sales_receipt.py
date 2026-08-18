@@ -9,6 +9,10 @@ No custom model is created (see feature.md §2 for the rationale).
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
+# Journal type → cash classification mapping
+_JOURNAL_CASH_TYPES = frozenset(['cash'])
+_JOURNAL_DIGITAL_TYPES = frozenset(['bank'])       # bank includes MPesa, card terminals
+
 
 class FMSSalesReceiptMove(models.Model):
     _inherit = 'account.move'
@@ -45,6 +49,69 @@ class FMSSalesReceiptMove(models.Model):
         size=30,
         help="Last 4 digits of card, cheque number, or MPesa confirmation code.",
     )
+    fms_payment_classification = fields.Selection([
+        ('cash',    'Cash'),
+        ('digital', 'Digital (MPesa / Card / Bank)'),
+        ('credit',  'Credit (AR)'),
+    ], string='Payment Type',
+        compute='_compute_fms_payment_classification',
+        store=True,
+        help="Derived from the journal type. Cash = affects physical cash holding. "
+             "Digital = no physical cash. Credit = creates AR, no cash.",
+    )
+
+    # ------------------------------------------------------------------
+    # Compute
+    # ------------------------------------------------------------------
+
+    @api.depends('move_type', 'journal_id', 'journal_id.type')
+    def _compute_fms_payment_classification(self):
+        for move in self:
+            if move.move_type != 'out_receipt':
+                move.fms_payment_classification = False
+                continue
+            jtype = move.journal_id.type if move.journal_id else False
+            if jtype in _JOURNAL_CASH_TYPES:
+                move.fms_payment_classification = 'cash'
+            elif jtype in _JOURNAL_DIGITAL_TYPES:
+                move.fms_payment_classification = 'digital'
+            else:
+                move.fms_payment_classification = 'credit'
+
+    # ------------------------------------------------------------------
+    # Posting override — enforce FMS rules, then delegate to Odoo native
+    # ------------------------------------------------------------------
+
+    def action_post(self):
+        for move in self.filtered(lambda m: m.move_type == 'out_receipt'):
+            # Idempotency: already posted — nothing to do
+            if move.state == 'posted':
+                continue
+            # Require active shift
+            if not move.fms_shift_id:
+                shift = self.env['fms.shift']._get_current_shift(
+                    move.invoice_date or fields.Date.today(),
+                    move.company_id.id,
+                )
+                if shift:
+                    move.fms_shift_id = shift
+                else:
+                    raise ValidationError(
+                        f"Cannot confirm receipt: no open shift for "
+                        f"{move.company_id.name} on {move.invoice_date or fields.Date.today()}. "
+                        "Open a shift first."
+                    )
+            if move.fms_shift_id.state == 'closed':
+                raise ValidationError(
+                    f"Cannot confirm receipt against closed shift "
+                    f"'{move.fms_shift_id.display_name}'. Closed shifts are locked."
+                )
+            if move.fms_shift_id.company_id != move.company_id:
+                raise ValidationError(
+                    "Shift company does not match receipt company."
+                )
+        # Delegate to Odoo native action_post (creates GL entries)
+        return super().action_post()
 
     # ------------------------------------------------------------------
     # Helpers

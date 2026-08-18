@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    fms_accounting_company_defaults.xml — accounting-module defaults.
+    Loads ONLY when fms_accounting (which depends on account) is installed.
+
+    Sets fiscal country and creates Kenya VAT tax group, GL accounts,
+    Forecourt Sales journal, and taxes.
+
+    Currency: does NOT force currency_id on the company. The company's
+    existing active currency is used as-is. If you need KES, set it
+    manually via Settings > Companies, or use a post-install hook.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- Set fiscal country to Kenya (requires account module). -->
+        <record id="base.main_company" model="res.company">
+            <field name="account_fiscal_country_id" ref="base.ke"/>
+        </record>
+
+        <!-- Kenya VAT tax group -->
+        <record id="tax_group_vat_ke" model="account.tax.group">
+            <field name="name">VAT</field>
+            <field name="country_id" ref="base.ke"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+    </data>
+
+    <data noupdate="1">
+
+        <!-- ================================================================
+             FMS GL Accounts (noupdate=1 — created once, hand-editable after)
+        ================================================================ -->
+
+        <!-- 191600 — FMS Cash Clearing (asset_current)
+             Debited on shift close for total meter cash sales.
+             Cleared when cash is banked / reconciled with bank statement.
+             MUST be asset, NOT revenue. -->
+        <record id="account_fms_cash_clearing" model="account.account">
+            <field name="code">191600</field>
+            <field name="name">FMS Cash Clearing</field>
+            <field name="account_type">asset_current</field>
+            <field name="company_ids" eval="[(4, ref('base.main_company'))]"/>
+            <field name="reconcile" eval="True"/>
+        </record>
+
+        <!-- 591000 — Fuel Cost of Sales (expense_direct_cost) -->
+        <record id="account_fuel_cogs" model="account.account">
+            <field name="code">591000</field>
+            <field name="name">Fuel Cost of Sales</field>
+            <field name="account_type">expense_direct_cost</field>
+            <field name="company_ids" eval="[(4, ref('base.main_company'))]"/>
+        </record>
+
+        <!-- Forecourt Sales Journal (type=sale) — used for all shift GL entries -->
+        <record id="journal_forecourt_sales" model="account.journal">
+            <field name="name">Forecourt Sales</field>
+            <field name="code">FCST</field>
+            <field name="type">sale</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+    </data>
+
+    <!-- Site Preferences wiring — noupdate="0" so re-install patches existing record -->
+    <data noupdate="0">
+        <function model="fms.site.preferences" name="_fms_configure_defaults">
+            <value eval="ref('account_fms_cash_clearing')"/>
+            <value eval="ref('account_fuel_cogs')"/>
+            <value eval="ref('journal_forecourt_sales')"/>
+        </function>
+    </data>
+
+    <!-- Taxes — noupdate="0" so re-install updates them cleanly -->
+    <data noupdate="0">
+
+        <!-- VAT 16% — Sales -->
+        <record id="tax_vat_16_sale" model="account.tax">
+            <field name="name">VAT 16%</field>
+            <field name="amount">16.0</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include">False</field>
+            <field name="country_id" ref="base.ke"/>
+            <field name="tax_group_id" ref="tax_group_vat_ke"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- VAT 8% — Sales -->
+        <record id="tax_vat_8_sale" model="account.tax">
+            <field name="name">VAT 8%</field>
+            <field name="amount">8.0</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include">False</field>
+            <field name="country_id" ref="base.ke"/>
+            <field name="tax_group_id" ref="tax_group_vat_ke"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- VAT 16% — Purchase -->
+        <record id="tax_vat_16_purchase" model="account.tax">
+            <field name="name">VAT 16%</field>
+            <field name="amount">16.0</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include">False</field>
+            <field name="country_id" ref="base.ke"/>
+            <field name="tax_group_id" ref="tax_group_vat_ke"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- VAT 8% — Purchase -->
+        <record id="tax_vat_8_purchase" model="account.tax">
+            <field name="name">VAT 8%</field>
+            <field name="amount">8.0</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include">False</field>
+            <field name="country_id" ref="base.ke"/>
+            <field name="tax_group_id" ref="tax_group_vat_ke"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+    </data>
+</odoo>

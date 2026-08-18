@@ -61,7 +61,7 @@
                             <field name="quantity_litres" string="Invoiced (L)"/>
                             <field name="unit_price" string="Price (/L)"/>
                             <field name="subtotal" readonly="1" string="Subtotal"
-                                   sum="Total KES"/>
+                                   sum="Total"/>
 
                             <!-- Dip verification columns -->
                             <field name="dip_before" string="Dip Before (L)" optional="show"/>
@@ -97,7 +97,7 @@
                 <field name="vendor_id"/>
                 <field name="tanker_ref"/>
                 <field name="total_litres" string="Total (L)" sum="Grand Total L"/>
-                <field name="total_amount" string="Total" sum="Grand Total KES"/>
+                <field name="total_amount" string="Total" sum="Grand Total"/>
                 <field name="state" widget="badge"
                        decoration-muted="state == 'draft'"
                        decoration-success="state == 'confirmed'"

@@ -38,4 +38,41 @@
         <field name="perm_unlink" eval="0"/>
     </record>
 
+    <!-- ─── account.move record rules ─────────────────────────────────────────
+         Accountants: NO FMS rule — full native Odoo accounting access preserved.
+         Supervisors: read all own-company moves; cannot unlink shift GL entries
+                      (system-posted, immutable audit trail).
+         Attendants:  read own-shift out_receipts + non-FMS moves in own company.
+                      No create/write/unlink — work via shift form only.
+         fms_shift_id on account.move is added by fms_sales_receipt.py in this module.
+    ──────────────────────────────────────────────────────────────────────── -->
+
+    <record id="rule_fms_move_supervisor" model="ir.rule">
+        <field name="name">FMS Move: supervisor read own company</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_supervisor'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="rule_fms_move_attendant" model="ir.rule">
+        <field name="name">FMS Move: attendant reads own-shift receipts only</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="groups" eval="[(4, ref('fms.group_fms_attendant'))]"/>
+        <field name="domain_force">
+            ['&amp;',
+             ('company_id', 'in', company_ids),
+             '|',
+             ('fms_shift_id', '=', False),
+             ('fms_shift_id.attendant_cash_ids.employee_id.user_id', '=', user.id)]
+        </field>
+        <field name="perm_read"   eval="1"/>
+        <field name="perm_write"  eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
 </odoo>

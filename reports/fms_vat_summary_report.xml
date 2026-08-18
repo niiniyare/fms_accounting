@@ -33,7 +33,7 @@
                                     <thead>
                                         <tr>
                                             <th>Tax</th>
-                                            <th class="text-end">Tax Amount (KES)</th>
+                                            <th class="text-end">Tax Amount </th>
                                         </tr>
                                     </thead>
                                     <tbody>
