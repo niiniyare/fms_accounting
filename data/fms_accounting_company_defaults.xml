@@ -3,85 +3,26 @@
     fms_accounting_company_defaults.xml — accounting-module defaults.
     Loads ONLY when fms_accounting (which depends on account) is installed.
 
-    GL accounts and journal are created via _ensure_fms_gl_setup() which
-    uses find-or-create by code — safe for both fresh installs and existing
-    databases that already have these accounts from a prior fms module version.
+    All GL accounts, journal, tax group, and taxes are created via
+    _ensure_fms_gl_setup() using find-or-create — safe for fresh installs
+    and existing DBs that already have these records from a prior version.
 -->
 <odoo>
     <data noupdate="1">
 
-        <!-- Set fiscal country to Kenya (requires account module). -->
+        <!-- Set fiscal country to Kenya (requires account module).
+             This is the one thing safe as a <record> — updating res.company
+             with a Many2one is idempotent (no uniqueness constraint). -->
         <record id="base.main_company" model="res.company">
             <field name="account_fiscal_country_id" ref="base.ke"/>
         </record>
 
-        <!-- Kenya VAT tax group -->
-        <record id="tax_group_vat_ke" model="account.tax.group">
-            <field name="name">VAT</field>
-            <field name="country_id" ref="base.ke"/>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
     </data>
 
-    <!-- GL accounts, journal, site preferences wiring.
-         _ensure_fms_gl_setup() does find-or-create by account code,
-         so re-running never creates duplicates. noupdate="0" so it
-         runs on every upgrade and keeps prefs wired correctly. -->
+    <!-- All other accounting defaults via find-or-create Python function.
+         noupdate="0" so it runs on every upgrade and keeps records wired. -->
     <data noupdate="0">
         <function model="fms.site.preferences" name="_ensure_fms_gl_setup"/>
     </data>
 
-    <!-- Taxes — noupdate="0" so re-install updates them cleanly -->
-    <data noupdate="0">
-
-        <!-- VAT 16% — Sales -->
-        <record id="tax_vat_16_sale" model="account.tax">
-            <field name="name">VAT 16%</field>
-            <field name="amount">16.0</field>
-            <field name="amount_type">percent</field>
-            <field name="type_tax_use">sale</field>
-            <field name="price_include">False</field>
-            <field name="country_id" ref="base.ke"/>
-            <field name="tax_group_id" ref="tax_group_vat_ke"/>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-        <!-- VAT 8% — Sales -->
-        <record id="tax_vat_8_sale" model="account.tax">
-            <field name="name">VAT 8%</field>
-            <field name="amount">8.0</field>
-            <field name="amount_type">percent</field>
-            <field name="type_tax_use">sale</field>
-            <field name="price_include">False</field>
-            <field name="country_id" ref="base.ke"/>
-            <field name="tax_group_id" ref="tax_group_vat_ke"/>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-        <!-- VAT 16% — Purchase -->
-        <record id="tax_vat_16_purchase" model="account.tax">
-            <field name="name">VAT 16%</field>
-            <field name="amount">16.0</field>
-            <field name="amount_type">percent</field>
-            <field name="type_tax_use">purchase</field>
-            <field name="price_include">False</field>
-            <field name="country_id" ref="base.ke"/>
-            <field name="tax_group_id" ref="tax_group_vat_ke"/>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-        <!-- VAT 8% — Purchase -->
-        <record id="tax_vat_8_purchase" model="account.tax">
-            <field name="name">VAT 8%</field>
-            <field name="amount">8.0</field>
-            <field name="amount_type">percent</field>
-            <field name="type_tax_use">purchase</field>
-            <field name="price_include">False</field>
-            <field name="country_id" ref="base.ke"/>
-            <field name="tax_group_id" ref="tax_group_vat_ke"/>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-    </data>
 </odoo>

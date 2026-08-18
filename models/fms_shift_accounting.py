@@ -207,3 +207,43 @@ class FMSSitePreferencesAccountingExt(models.Model):
         journal = _find_or_create_journal('FCST', 'Forecourt Sales', 'sale')
 
         self._fms_configure_defaults(clearing.id, cogs.id, journal.id)
+
+        # Find-or-create Kenya VAT tax group and taxes (idempotent — safe for existing DBs)
+        Tax = self.env['account.tax']
+        kenya = self.env.ref('base.ke', raise_if_not_found=False)
+        TaxGroup = self.env['account.tax.group']
+        tax_group = TaxGroup.search([
+            ('name', '=', 'VAT'),
+            ('company_id', '=', company.id),
+        ], limit=1)
+        if not tax_group:
+            vals = {'name': 'VAT', 'company_id': company.id}
+            if kenya:
+                vals['country_id'] = kenya.id
+            tax_group = TaxGroup.create(vals)
+
+        def _find_or_create_tax(name, amount, use, group):
+            tax = Tax.search([
+                ('name', '=', name),
+                ('type_tax_use', '=', use),
+                ('company_id', '=', company.id),
+            ], limit=1)
+            if not tax:
+                vals = {
+                    'name': name,
+                    'amount': amount,
+                    'amount_type': 'percent',
+                    'type_tax_use': use,
+                    'price_include': False,
+                    'company_id': company.id,
+                }
+                if kenya:
+                    vals['country_id'] = kenya.id
+                if group:
+                    vals['tax_group_id'] = group.id
+                Tax.create(vals)
+
+        _find_or_create_tax('VAT 16%', 16.0, 'sale',     tax_group)
+        _find_or_create_tax('VAT 8%',   8.0, 'sale',     tax_group)
+        _find_or_create_tax('VAT 16%', 16.0, 'purchase', tax_group)
+        _find_or_create_tax('VAT 8%',   8.0, 'purchase', tax_group)
