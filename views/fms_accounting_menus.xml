@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- fms_accounting leaf menus — loaded last in fms_accounting manifest.
+     Parents (menu_fms_root, menu_fms_operations, menu_fms_sales_cash,
+     menu_fms_reporting, menu_fms_config) are defined in fms module. -->
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════
+         OPERATIONS — accounting additions
+    ══════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fms_fuel_delivery"
+              name="Fuel Deliveries"
+              parent="fms.menu_fms_operations"
+              action="action_fms_fuel_delivery"
+              groups="fms.group_fms_supervisor"
+              sequence="20"/>
+
+    <!-- ══════════════════════════════════════════════════
+         SALES & CASH
+         Cash Reconciliation | Credit Customers
+         PDC Register | Petty Cash Transactions | Sales Receipts
+    ══════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fms_cash_reconciliation"
+              name="Cash Reconciliation"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_receipt_reconciliation"
+              groups="fms.group_fms_supervisor"
+              sequence="10"/>
+
+    <menuitem id="menu_fms_credit_customers"
+              name="Credit Customers"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_credit_customer"
+              groups="fms.group_fms_supervisor"
+              sequence="20"/>
+
+    <menuitem id="menu_fms_pdc"
+              name="PDC Register"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_pdc_register"
+              groups="fms.group_fms_supervisor"
+              sequence="30"/>
+
+    <menuitem id="menu_fms_petty_cash_transactions"
+              name="Petty Cash Transactions"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_petty_cash_disbursements"
+              groups="fms.group_fms_supervisor"
+              sequence="40"/>
+
+    <menuitem id="menu_fms_sales_receipts"
+              name="Sales Receipts"
+              parent="fms.menu_fms_sales_cash"
+              action="action_fms_sales_receipt"
+              groups="fms.group_fms_supervisor"
+              sequence="50"/>
+
+    <!-- ══════════════════════════════════════════════════
+         REPORTING — financial reports (accountant only)
+    ══════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fms_report_pl"
+              name="Profit &amp; Loss"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_pl"
+              groups="fms.group_fms_accountant"
+              sequence="60"/>
+
+    <menuitem id="menu_fms_report_bs"
+              name="Balance Sheet"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_balance_sheet"
+              groups="fms.group_fms_accountant"
+              sequence="70"/>
+
+    <menuitem id="menu_fms_report_tb"
+              name="Trial Balance"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_report_trial_balance"
+              groups="fms.group_fms_accountant"
+              sequence="80"/>
+
+    <menuitem id="menu_fms_report_debtors"
+              name="Debtors Aging"
+              parent="fms.menu_fms_reporting"
+              action="action_fms_debtor_aging"
+              groups="fms.group_fms_accountant"
+              sequence="90"/>
+
+    <menuitem id="menu_fms_report_gl_reconciliation"
+              name="GL Reconciliation Journal"
+              parent="fms.menu_fms_reporting"
+              action="fms.action_fms_gl_reconciliation"
+              groups="fms.group_fms_accountant"
+              sequence="180"/>
+
+</odoo>

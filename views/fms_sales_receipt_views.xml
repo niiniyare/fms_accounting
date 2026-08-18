@@ -195,11 +195,6 @@
          Menu — Operations > Sales Receipts
     ================================================================ -->
 
-    <menuitem id="menu_fms_sales_receipts"
-              name="Sales Receipts"
-              parent="fms.menu_fms_operations"
-              action="action_fms_sales_receipt"
-              groups="fms.group_fms_attendant"
-              sequence="20"/>
+    <!-- menu moved to fms/views/fms_menus.xml -->
 
 </odoo>

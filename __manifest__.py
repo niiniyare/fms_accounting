@@ -21,6 +21,7 @@
         "views/fms_pdc_views.xml",
         "views/fms_report_debtor_views.xml",
         "views/fms_receipt_reconciliation_views.xml",
+        "views/fms_accounting_menus.xml",  # must be last — references actions from all files above
 
         # Reports
         "reports/fms_pl_report.xml",

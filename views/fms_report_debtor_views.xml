@@ -125,11 +125,6 @@
          (parent menu_fms_reporting defined in fms/views/fms_shift_list_views.xml)
     ================================================================ -->
 
-    <menuitem id="menu_fms_report_debtors"
-              name="Debtors Aging &amp; Credit Exposure"
-              parent="fms.menu_fms_section_cash_credit"
-              action="action_fms_debtor_aging"
-              groups="fms.group_fms_supervisor"
-              sequence="30"/>
+    <!-- menu moved to fms/views/fms_menus.xml -->
 
 </odoo>

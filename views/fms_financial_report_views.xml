@@ -112,25 +112,10 @@
     <!-- ================================================================
          Menu items — Forecourt > Reporting
     ================================================================ -->
-    <menuitem id="menu_fms_report_pl"
-              name="Profit &amp; Loss"
-              parent="fms.menu_fms_reporting"
-              action="action_fms_report_pl"
-              groups="fms.group_fms_supervisor"
-              sequence="20"/>
+    <!-- menu moved to fms/views/fms_menus.xml -->
 
-    <menuitem id="menu_fms_report_bs"
-              name="Balance Sheet"
-              parent="fms.menu_fms_reporting"
-              action="action_fms_report_balance_sheet"
-              groups="fms.group_fms_supervisor"
-              sequence="21"/>
+    <!-- menu moved to fms/views/fms_menus.xml -->
 
-    <menuitem id="menu_fms_report_tb"
-              name="Trial Balance"
-              parent="fms.menu_fms_reporting"
-              action="action_fms_report_trial_balance"
-              groups="fms.group_fms_supervisor"
-              sequence="22"/>
+    <!-- menu moved to fms/views/fms_menus.xml -->
 
 </odoo>
